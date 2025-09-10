@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eranda Aththanayake - eWings Tutor Profile</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f8fafc;
+            color: #333;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #6366f1;
+        }
+
+        .logo::before {
+            content: '';
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(45deg, #8b5cf6, #3b82f6);
+            border-radius: 6px;
+            margin-right: 10px;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #64748b;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: #3b82f6;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-login {
+            background: transparent;
+            color: #3b82f6;
+            border: 1px solid #3b82f6;
+        }
+
+        .btn-signup {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .cart {
+            position: relative;
+            background: #3b82f6;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            margin-bottom: 2rem;
+            color: #64748b;
+            transition: color 0.3s ease;
+        }
+
+        .back-btn:hover {
+            color: #3b82f6;
+        }
+
+        .profile-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .profile-sidebar {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+        }
+
+        .profile-image {
+            width: 200px;
+            height: 200px;
+            border-radius: 12px;
+            object-fit: cover;
+            margin-bottom: 1.5rem;
+        }
+
+        .tutor-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #1e293b;
+        }
+
+        .subject {
+            color: #3b82f6;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .qualification {
+            color: #64748b;
+            margin-bottom: 2rem;
+        }
+
+        .contacts-section h3 {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 1rem;
+        }
+
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #64748b;
+        }
+
+        .courses-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .year-filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .year-filter {
+            padding: 0.5rem 1.5rem;
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .year-filter.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .year-filter:hover {
+            border-color: #3b82f6;
+            transform: translateY(-1px);
+        }
+
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .course-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .course-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        }
+
+        .course-card.featured {
+            border-color: #3b82f6;
+            background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
+        }
+
+        .course-instructor {
+            color: #8b5a3c;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .course-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #1e293b;
+        }
+
+        .course-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .course-subject {
+            color: #3b82f6;
+            font-weight: 600;
+        }
+
+        .course-year {
+            color: #3b82f6;
+            font-weight: 600;
+        }
+
+        .course-type {
+            background: #f1f5f9;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            color: #475569;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        .course-price {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 1rem;
+        }
+
+        .enroll-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .enroll-btn:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        .course-card.hidden {
+            display: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 1rem;
+                flex-wrap: wrap;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .profile-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .courses-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .year-filters {
+                flex-wrap: wrap;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .course-card {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .course-card:nth-child(1) { animation-delay: 0.1s; }
+        .course-card:nth-child(2) { animation-delay: 0.2s; }
+        .course-card:nth-child(3) { animation-delay: 0.3s; }
+        .course-card:nth-child(4) { animation-delay: 0.4s; }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="logo">eWings</div>
+            <ul class="nav-links">
+                <li><a href="#" class="active">Home</a></li>
+                <li><a href="#">Courses</a></li>
+                <li><a href="#">Tutors</a></li>
+                <li><a href="#">Institutes</a></li>
+                <li><a href="#">My Courses</a></li>
+                <li><a href="#">Support</a></li>
+            </ul>
+            <div class="auth-buttons">
+                <a href="#" class="btn btn-login">Login</a>
+                <a href="#" class="btn btn-signup">Sign Up</a>
+                <div class="cart">
+                    🛒
+                    <span class="cart-count">2</span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <button class="back-btn" onclick="goBack()">←</button>
+        
+        <div class="profile-container">
+            <!-- Profile Sidebar -->
+            <div class="profile-sidebar">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='16' fill='%236b7280'%3ETutor Photo%3C/text%3E%3C/svg%3E" 
+                     alt="Eranda Aththanayake" class="profile-image">
+                
+                <h2 class="tutor-name">Eranda Aththanayake</h2>
+                <div class="subject">Physics</div>
+                <div class="qualification">Bsc.Engineering</div>
+                
+                <div class="contacts-section">
+                    <h3>Contacts</h3>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <span>📧</span>
+                            <span>eranda.physics@ewings.lk</span>
+                        </div>
+                        <div class="contact-item">
+                            <span>📱</span>
+                            <span>+94 77 123 4567</span>
+                        </div>
+                        <div class="contact-item">
+                            <span>📍</span>
+                            <span>Colombo, Sri Lanka</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Courses Section -->
+            <div class="courses-section">
+                <div class="year-filters">
+                    <button class="year-filter active" data-year="all">ALL</button>
+                    <button class="year-filter" data-year="2025">2025</button>
+                    <button class="year-filter" data-year="2026">2026</button>
+                    <button class="year-filter" data-year="2027">2027</button>
+                </div>
+
+                <div class="courses-grid" id="courses-grid">
+                    <!-- Featured Course -->
+                    <div class="course-card featured" data-year="2027">
+                        <div class="course-instructor">Eranda Aththanayake</div>
+                        <div class="course-title">2027 Theory- Kegalle [EA]</div>
+                        <div class="course-meta">
+                            <span class="course-subject">Physics</span>
+                            <span>|</span>
+                            <span class="course-year">2027</span>
+                        </div>
+                        <div class="course-type">Monthly Class</div>
+                        <div class="course-price">LKR 3200.00</div>
+                        <button class="enroll-btn" onclick="enrollCourse('2027 Theory- Kegalle')">Enroll Now</button>
+                    </div>
+
+                    <div class="course-card" data-year="2027">
+                        <div class="course-instructor">Eranda Aththanayake</div>
+                        <div class="course-title">2027 Theory Class[EA]- Galle</div>
+                        <div class="course-meta">
+                            <span class="course-subject">Physics</span>
+                            <span>|</span>
+                            <span class="course-year">2027</span>
+                        </div>
+                        <div class="course-type">Monthly Class</div>
+                        <div class="course-price">LKR 3200.00</div>
+                        <button class="enroll-btn" onclick="enrollCourse('2027 Theory Class- Galle')">Enroll Now</button>
+                    </div>
+
+                    <div class="course-card" data-year="2026">
+                        <div class="course-instructor">Eranda Aththanayake</div>
+                        <div class="course-title">2026 Physics Special Group Class - All Island</div>
+                        <div class="course-meta">
+                            <span class="course-subject">Physics</span>
+                            <span>|</span>
+                            <span class="course-year">2026</span>
+                        </div>
+                        <div class="course-type">Monthly Class</div>
+                        <div class="course-price">LKR 1600.00</div>
+                        <button class="enroll-btn" onclick="enrollCourse('2026 Physics Special Group Class')">Enroll Now</button>
+                    </div>
+
+                    <div class="course-card" data-year="2025">
+                        <div class="course-instructor">Eranda Aththanayake</div>
+                        <div class="course-title">2025 Physics Special Group Class - All Island</div>
+                        <div class="course-meta">
+                            <span class="course-subject">Physics</span>
+                            <span>|</span>
+                            <span class="course-year">2025</span>
+                        </div>
+                        <div class="course-type">Monthly Class</div>
+                        <div class="course-price">LKR 1400.00</div>
+                        <button class="enroll-btn" onclick="enrollCourse('2025 Physics Special Group Class')">Enroll Now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Year filter functionality
+        const yearFilters = document.querySelectorAll('.year-filter');
+        const courseCards = document.querySelectorAll('.course-card');
+
+        yearFilters.forEach(filter => {
+            filter.addEventListener('click', () => {
+                // Remove active class from all filters
+                yearFilters.forEach(f => f.classList.remove('active'));
+                // Add active class to clicked filter
+                filter.classList.add('active');
+                
+                const selectedYear = filter.getAttribute('data-year');
+                
+                // Filter courses
+                filterCourses(selectedYear);
+            });
+        });
+
+        function filterCourses(year) {
+            courseCards.forEach(card => {
+                if (year === 'all') {
+                    card.classList.remove('hidden');
+                    // Reset animation
+                    card.style.animation = 'none';
+                    card.offsetHeight; // Trigger reflow
+                    card.style.animation = null;
+                } else {
+                    const cardYear = card.getAttribute('data-year');
+                    if (cardYear === year) {
+                        card.classList.remove('hidden');
+                        // Reset animation
+                        card.style.animation = 'none';
+                        card.offsetHeight; // Trigger reflow
+                        card.style.animation = null;
+                    } else {
+                        card.classList.add('hidden');
+                    }
+                }
+            });
+        }
+
+       
+        // Enrollment functionality - redirect to course selection page
+function enrollCourse(courseName) {
+    // Map course names to specific pages
+    const coursePageMap = {
+        "2027 Theory- Kegalle": "class4.html",
+        "2027 Theory Class- Galle": "class2.html",
+        "2026 Physics Special Group Class": "class3.html",
+        "2025 Physics Special Group Class": "class1.html"
+    };
+
+    const pageUrl = coursePageMap[courseName];
+    if (pageUrl) {
+        // Redirect to the respective class page
+        window.location.href = pageUrl;
+    } else {
+        // Fallback notification
+        showNotification("Course page not found!");
+    }
+}
+
+        // Back button functionality
+        function goBack() {
+            // Simulate going back to tutors page
+            showNotification('Returning to tutors list...');
+            // In real implementation: window.history.back() or navigate to tutors page
+        }
+
+        // Notification system
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #10b981;
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                z-index: 1000;
+                font-weight: 500;
+                animation: slideInRight 0.3s ease;
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Add animation keyframes for notifications
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes slideOutRight {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Smooth scrolling for better UX
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add hover effects to course cards
+            courseCards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = 'translateY(-4px)';
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Initialize with a welcome message
+            setTimeout(() => {
+                showNotification('Welcome to Eranda\'s profile!');
+            }, 1000);
+        });
+
+        // Contact item click handlers
+        document.querySelectorAll('.contact-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const text = item.textContent.trim();
+                if (text.includes('@')) {
+                    window.open(`mailto:${text.split('📧')[1].trim()}`);
+                } else if (text.includes('+94')) {
+                    window.open(`tel:${text.split('📱')[1].trim()}`);
+                }
+            });
+            
+            // Add hover effect
+            item.style.cursor = 'pointer';
+            item.addEventListener('mouseenter', () => {
+                item.style.backgroundColor = '#f8fafc';
+                item.style.borderRadius = '6px';
+                item.style.padding = '0.5rem';
+                item.style.margin = '-0.5rem';
+            });
+            
+            item.addEventListener('mouseleave', () => {
+                item.style.backgroundColor = 'transparent';
+                item.style.padding = '0';
+                item.style.margin = '0';
+            });
+        });
+    </script>
+</body>
+</html>

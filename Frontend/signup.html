@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>eduWings - Student Signup</title>
+<style>
+    * { box-sizing: border-box; }
+    
+    body { 
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); 
+        margin: 0; 
+        min-height: 100vh; 
+        color: #333;
+        overflow-x: hidden;
+    }
+    
+    /* Animated background elements */
+    .bg-decoration {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+    }
+    
+    .bg-decoration::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="25" cy="25" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="3" fill="rgba(255,255,255,0.05)"/><circle cx="50" cy="10" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
+        animation: float 20s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(180deg); }
+    }
+    
+    .header { 
+        background: rgba(255, 255, 255, 0.95); 
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); 
+        padding: 0; 
+        position: sticky; 
+        top: 0; 
+        z-index: 100; 
+    }
+    
+    .navbar { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        max-width: 1200px; 
+        margin: 0 auto; 
+        padding: 1rem 2rem; 
+    }
+    
+    .logo-container {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+    }
+    
+    .logo-container:hover {
+        transform: scale(1.05);
+    }
+    
+    .logo-image {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 1.2rem;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+    
+    .logo-text { 
+        font-size: 1.8rem; 
+        font-weight: 700; 
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .nav-links {
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+    }
+    
+    .nav-link {
+        color: #64748b;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+        position: relative;
+    }
+    
+    .nav-link:hover {
+        color: #6366f1;
+    }
+    
+    .nav-link::after {
+        content: '';
+        position: absolute;
+        bottom: -4px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: #6366f1;
+        transition: width 0.3s ease;
+    }
+    
+    .nav-link:hover::after {
+        width: 100%;
+    }
+    
+    .main-container { 
+        display: flex; 
+        justify-content: center; 
+        align-items: center; 
+        min-height: calc(100vh - 80px); 
+        padding: 2rem; 
+    }
+    
+    .signup-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem;
+        max-width: 1200px;
+        width: 100%;
+        align-items: center;
+    }
+    
+    .welcome-section {
+        text-align: center;
+        color: white;
+    }
+    
+    .welcome-image {
+        width: 300px;
+        height: 300px;
+        margin: 0 auto 2rem;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.3s ease;
+    }
+    
+    .welcome-image:hover {
+        transform: scale(1.05);
+    }
+    
+    .welcome-image::before {
+        content: '🎓';
+        font-size: 6rem;
+        animation: bounce 2s ease-in-out infinite;
+    }
+    
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+        40% { transform: translateY(-10px); }
+        60% { transform: translateY(-5px); }
+    }
+    
+    .welcome-title {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .welcome-subtitle {
+        font-size: 1.3rem;
+        opacity: 0.9;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+    }
+    
+    .features-list {
+        list-style: none;
+        padding: 0;
+        text-align: left;
+        display: inline-block;
+    }
+    
+    .features-list li {
+        margin: 1rem 0;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-size: 1.1rem;
+    }
+    
+    .features-list li::before {
+        content: '✓';
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #10b981;
+    }
+    
+    .signup-card { 
+        background: rgba(255, 255, 255, 0.95); 
+        backdrop-filter: blur(20px);
+        padding: 3rem; 
+        border-radius: 24px; 
+        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.15); 
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .signup-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #6366f1, transparent);
+        animation: shimmer 2s ease-in-out infinite;
+    }
+    
+    @keyframes shimmer {
+        0% { left: -100%; }
+        100% { left: 100%; }
+    }
+    
+    .signup-card h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .signup-subtitle {
+        color: #64748b;
+        margin-bottom: 2rem;
+        font-size: 1rem;
+    }
+    
+    .profile-upload {
+        margin-bottom: 2rem;
+        position: relative;
+    }
+    
+    .profile-preview {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        border: 3px dashed #d1d5db;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: #f8fafc;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .profile-preview:hover {
+        border-color: #6366f1;
+        background: #f0f9ff;
+    }
+    
+    .profile-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+    
+    .upload-icon {
+        font-size: 1.5rem;
+        color: #9ca3af;
+    }
+    
+    .upload-text {
+        font-size: 0.9rem;
+        color: #64748b;
+    }
+    
+    #profileInput {
+        display: none;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group { 
+        margin-bottom: 1.5rem; 
+        text-align: left; 
+    }
+    
+    .form-label { 
+        display: block; 
+        margin-bottom: 0.5rem; 
+        font-weight: 600; 
+        color: #374151; 
+        font-size: 0.9rem;
+    }
+    
+    .form-input { 
+        width: 100%; 
+        padding: 1rem; 
+        border: 2px solid #e5e7eb; 
+        border-radius: 12px; 
+        font-size: 1rem; 
+        transition: all 0.3s ease;
+        background: #fafafa;
+    }
+    
+    .form-input:focus { 
+        outline: none; 
+        border-color: #6366f1; 
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        background: white;
+        transform: translateY(-2px);
+    }
+    
+    .signup-btn { 
+        width: 100%; 
+        padding: 1rem; 
+        background: linear-gradient(135deg, #6366f1, #8b5cf6); 
+        color: white; 
+        border: none; 
+        border-radius: 12px; 
+        font-size: 1.1rem; 
+        font-weight: 600; 
+        cursor: pointer; 
+        margin-bottom: 1.5rem; 
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .signup-btn:hover { 
+        background: linear-gradient(135deg, #5b61eb, #7c3aed);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+    }
+    
+    .signup-btn:active {
+        transform: translateY(0);
+    }
+    
+    .login-link {
+        margin-top: 1.5rem;
+        font-size: 0.95rem;
+        color: #64748b;
+    }
+    
+    .login-link a {
+        color: #6366f1;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.3s ease;
+    }
+    
+    .login-link a:hover {
+        color: #5b61eb;
+        text-decoration: underline;
+    }
+    
+    .message { 
+        padding: 1rem; 
+        border-radius: 12px; 
+        margin-bottom: 1.5rem; 
+        text-align: center;
+        font-weight: 500;
+        animation: slideDown 0.3s ease;
+    }
+    
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .message.success { 
+        background: linear-gradient(135deg, #ecfdf5, #d1fae5); 
+        color: #065f46; 
+        border: 1px solid #a7f3d0; 
+    }
+    
+    .message.error { 
+        background: linear-gradient(135deg, #fef2f2, #fecaca); 
+        color: #dc2626; 
+        border: 1px solid #f87171; 
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+        .signup-wrapper {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            text-align: center;
+        }
+        
+        .welcome-section {
+            order: 2;
+        }
+        
+        .signup-card {
+            order: 1;
+        }
+        
+        .welcome-image {
+            width: 200px;
+            height: 200px;
+        }
+        
+        .welcome-title {
+            font-size: 2rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .navbar {
+            padding: 1rem;
+        }
+        
+        .nav-links {
+            display: none;
+        }
+        
+        .signup-card {
+            padding: 2rem;
+            margin: 1rem;
+        }
+        
+        .main-container {
+            padding: 1rem;
+        }
+    }
+</style>
+</head>
+<body>
+<div class="bg-decoration"></div>
+
+<header class="header">
+    <nav class="navbar">
+        <div class="logo-container" onclick="window.location.href='index.html'">
+            <div class="logo-image">eW</div>
+            <div class="logo-text">eduWings</div>
+        </div>
+        <div class="nav-links">
+            <a href="#" class="nav-link">About</a>
+            <a href="#" class="nav-link">Courses</a>
+            <a href="login.html" class="nav-link">Login</a>
+        </div>
+    </nav>
+</header>
+
+<div class="main-container">
+    <div class="signup-wrapper">
+        <div class="welcome-section">
+            <div class="welcome-image"></div>
+            <h1 class="welcome-title">Join eWings</h1>
+            <p class="welcome-subtitle">Spread your wings and soar to new heights with our comprehensive learning platform</p>
+            <ul class="features-list">
+                <li>Access to premium courses</li>
+                <li>Interactive learning materials</li>
+                <li>Expert instructor support</li>
+                <li>Progress tracking & certificates</li>
+                <li>Community of learners</li>
+            </ul>
+        </div>
+        
+        <div class="signup-card">
+            <h2>Create Your Account</h2>
+            <p class="signup-subtitle">Start your learning journey today</p>
+            
+            <div id="messageContainer"></div>
+            
+            <form id="signupForm">
+                <div class="profile-upload">
+                    <div class="profile-preview" onclick="document.getElementById('profileInput').click()">
+                        <div class="upload-icon">📸</div>
+                    </div>
+                    <p class="upload-text">Click to add profile photo</p>
+                    <input type="file" id="profileInput" accept="image/*">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">First Name</label>
+                        <input type="text" class="form-input" id="firstNameInput" placeholder="John" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Last Name</label>
+                        <input type="text" class="form-input" id="lastNameInput" placeholder="Doe" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-input" id="emailInput" placeholder="john.doe@email.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" class="form-input" id="phoneInput" placeholder="+94 71 234 5678" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-input" id="passwordInput" placeholder="••••••••" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirm Password</label>
+                        <input type="password" class="form-input" id="confirmPasswordInput" placeholder="••••••••" required>
+                    </div>
+                </div>
+                
+                <button type="submit" class="signup-btn">Create Account</button>
+                
+                <div class="login-link">
+                    Already have an account? 
+                    <a href="login.html">Sign in here</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // // Store students in memory (not localStorage as per restrictions)
+    // let students = [];
+    //
+    // // Profile image handling
+    // const profileInput = document.getElementById('profileInput');
+    // const profilePreview = document.querySelector('.profile-preview');
+    //
+    // profileInput.addEventListener('change', function(e) {
+    //     const file = e.target.files[0];
+    //     if (file) {
+    //         const reader = new FileReader();
+    //         reader.onload = function(e) {
+    //             profilePreview.innerHTML = `<img src="${e.target.result}" alt="Profile">`;
+    //         };
+    //         reader.readAsDataURL(file);
+    //     }
+    // });
+    //
+    // const signupForm = document.getElementById('signupForm');
+    // const messageContainer = document.getElementById('messageContainer');
+    //
+    // signupForm.addEventListener('submit', function(e) {
+    //     e.preventDefault();
+    //
+    //     const firstName = document.getElementById('firstNameInput').value.trim();
+    //     const lastName = document.getElementById('lastNameInput').value.trim();
+    //     const email = document.getElementById('emailInput').value.trim();
+    //     const phone = document.getElementById('phoneInput').value.trim();
+    //     const password = document.getElementById('passwordInput').value;
+    //     const confirmPassword = document.getElementById('confirmPasswordInput').value;
+    //
+    //     // Validation
+    //     if (password !== confirmPassword) {
+    //         showMessage('Passwords do not match!', 'error');
+    //         return;
+    //     }
+    //
+    //     if (password.length < 6) {
+    //         showMessage('Password must be at least 6 characters long!', 'error');
+    //         return;
+    //     }
+    //
+    //     if (students.find(s => s.email === email)) {
+    //         showMessage('Email already registered!', 'error');
+    //         return;
+    //     }
+    //
+    //     // Generate auto ID: S001, S002, etc.
+    //     const newId = `S${String(students.length + 1).padStart(3,'0')}`;
+    //
+    //     // Current date auto-fill
+    //     const date = new Date();
+    //     const registerDate = date.toISOString().split('T')[0]; // YYYY-MM-DD
+    //
+    //     const newStudent = {
+    //         id: newId,
+    //         firstName: firstName,
+    //         lastName: lastName,
+    //         fullName: `${firstName} ${lastName}`,
+    //         email: email,
+    //         phone: phone,
+    //         password: password,
+    //         registerDate: registerDate,
+    //         profileImage: profilePreview.querySelector('img')?.src || null
+    //     };
+    //
+    //     students.push(newStudent);
+    //
+    //     showMessage(`🎉 Welcome to eWings! Your student ID is ${newId}`, 'success');
+    //
+    //     // Reset form
+    //     signupForm.reset();
+    //     profilePreview.innerHTML = '<div class="upload-icon">📸</div>';
+    //
+    //     // Optional: Redirect to login page after 2s
+    //     setTimeout(() => {
+    //         showMessage('Redirecting to login page...', 'success');
+    //         // window.location.href = 'login.html';
+    //     }, 2000);
+    // });
+    //
+    // function showMessage(msg, type='info') {
+    //     messageContainer.innerHTML = `<div class="message ${type}">${msg}</div>`;
+    //
+    //     // Auto-hide message after 5 seconds
+    //     setTimeout(() => {
+    //         messageContainer.innerHTML = '';
+    //     }, 5000);
+    // }
+    //
+    // // Add some interactive elements
+    // document.querySelectorAll('.form-input').forEach(input => {
+    //     input.addEventListener('focus', function() {
+    //         this.parentElement.classList.add('focused');
+    //     });
+    //
+    //     input.addEventListener('blur', function() {
+    //         this.parentElement.classList.remove('focused');
+    //     });
+    // });
+</script>
+<script src="/js/signup.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</body>
+</html>

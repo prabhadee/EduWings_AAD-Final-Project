@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>eWings Course Detail Replica</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js" defer></script>
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --secondary: #6366f1;
+      --bg: #f8fafc;
+      --text: #1e293b;
+      --muted: #64748b;
+      --card: #fff;
+      --border: #e2e8f0;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .navbar {
+      position: sticky;
+      top: 0;
+      background: var(--card);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      z-index: 1000;
+    }
+    .navbar .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+    }
+    .navbar .logo::before {
+      content: '';
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 6px;
+      display: inline-block;
+      margin-right: 0.6rem;
+    }
+    .navbar .spacer { flex: 1; }
+    .navbar .btn {
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--card);
+      cursor: pointer;
+      margin-left: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .navbar .btn.primary {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: #fff;
+    }
+    .cart {
+      position: relative;
+      margin-right: 1rem;
+      cursor: pointer;
+    }
+    .cart .count {
+      position: absolute;
+      top: -6px;
+      right: -8px;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 2rem auto;
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 2rem;
+      padding: 0 1rem;
+    }
+    @media (max-width:768px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+    .sidebar {
+      background: var(--card);
+      padding: 1.5rem;
+      border-radius: var(--radius);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      position: sticky;
+      top: 80px;
+    }
+    .sidebar img {
+      width: 100%;
+      border-radius: var(--radius);
+      margin-bottom: 1rem;
+    }
+    .sidebar h2 {
+      margin: 0.5rem 0;
+      font-size: 1.25rem;
+    }
+    .chips {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .chip {
+      padding: 0.3rem 0.8rem;
+      background: #eef2ff;
+      color: #4338ca;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .price {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin: 1rem 0;
+    }
+    .contact {
+      margin-top: 1rem;
+      font-size: 0.95rem;
+    }
+    .content {
+      background: var(--card);
+      padding: 1.5rem;
+      border-radius: var(--radius);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .filters {
+      margin-bottom: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .pill {
+      padding: 0.4rem 0.8rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--card);
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .pill.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: transparent;
+    }
+    .actions {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .actions .btn.large {
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+    }
+    .section-title {
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+    .lessons {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+    .lesson-card {
+      background: var(--card);
+      padding: 1rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    .lesson-card .title {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    .lesson-card .lock {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+      border: 1px dashed var(--border);
+      padding: 0.5rem;
+      border-radius: var(--radius);
+    }
+    .lesson-card .live-badge {
+      font-size: 0.8rem;
+      background: #ecfdf5;
+      color: #065f46;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      margin-left: auto;
+    }
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.8);
+      color: #fff;
+      padding: 0.8rem 1.4rem;
+      border-radius: var(--radius);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .toast.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="logo">eWings</div>
+    <div class="spacer"></div>
+    <div class="cart">
+      <i class="fas fa-shopping-cart"></i>
+      <div class="count" id="cartCount">0</div>
+    </div>
+    <button class="btn">Login</button>
+    <button class="btn primary">Sign Up</button>
+  </header>
+
+  <div class="container" id="app">
+    <!-- Sidebar: Instructor & Course Info -->
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <!-- Main Content: Filters & Lessons -->
+    <div class="content">
+      <div class="filters" id="yearFilters"></div>
+      <div class="filters" id="monthFilters"></div>
+      <div class="actions">
+        <button class="btn large" id="btnAdd">Add To Cart</button>
+        <button class="btn large primary" id="btnBuy">Buy Now</button>
+      </div>
+      <div class="section-title" id="sectionTitle"></div>
+      <div class="lessons" id="lessons"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // Simulated data for 2026 course
+const COURSE_DATA = {
+  id: "64a2fc5e3062e0001a6871b0",
+  instructor: {
+    name: "Nipun Perera",
+    image: "https://images.unsplash.com/photo-1618173871552-9b8a9c1f40c4?q=80&w=400&auto=format&fit=crop",
+    contact: "0715566778"
+  },
+  title: "2026 Physics Special Group Class – All Island",
+  subject: "Physics",
+  year: 2026,
+  type: "Monthly Class",
+  price: 1500,
+  years: [2023, 2024, 2025, 2026, 2027],
+  months: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+  lessons: {
+    "2026": {
+      "Jul": [
+        { title: "Electric Fields – Theory", live: true },
+        { title: "Electric Fields – Problems", live: true }
+      ],
+      "Aug": [
+        { title: "Magnetic Fields – Theory", live: true },
+        { title: "Magnetic Fields – Problems", live: false }
+      ]
+    }
+  }
+};
+
+// State
+let selectedYear = COURSE_DATA.year;
+let selectedMonth = "Jul"; // default to first available month
+let purchased = false;
+let cartCount = 0;
+
+// Toast utility
+function showToast(msg) {
+  const toast = document.getElementById("toast");
+  toast.textContent = msg;
+  toast.classList.add("show");
+  clearTimeout(window.hideToast);
+  window.hideToast = setTimeout(() => toast.classList.remove("show"), 1800);
+}
+
+// Render sidebar
+function renderSidebar() {
+  const sb = document.getElementById("sidebar");
+  sb.innerHTML = `
+    <img src="${COURSE_DATA.instructor.image}" alt="Instructor">
+    <h2>${COURSE_DATA.instructor.name}</h2>
+    <p><strong>Contact:</strong> ${COURSE_DATA.instructor.contact}</p>
+    <hr>
+    <h2>${COURSE_DATA.title}</h2>
+    <div class="chips">
+      <div class="chip">${COURSE_DATA.subject}</div>
+      <div class="chip">${COURSE_DATA.year}</div>
+      <div class="chip">${COURSE_DATA.type}</div>
+    </div>
+    <div class="price">LKR ${COURSE_DATA.price.toLocaleString('en-LK', {minimumFractionDigits:2})}</div>
+  `;
+}
+
+// Render filter pills
+function renderFilters() {
+  const yCont = document.getElementById("yearFilters");
+  yCont.innerHTML = COURSE_DATA.years.map(y =>
+    `<div class="pill ${y === selectedYear ? "active" : ""}" data-year="${y}">${y}</div>`
+  ).join("");
+  
+  const mCont = document.getElementById("monthFilters");
+  mCont.innerHTML = COURSE_DATA.months.map(m =>
+    `<div class="pill ${m === selectedMonth ? "active" : ""} ${COURSE_DATA.lessons[selectedYear][m] ? '' : 'disabled'}" data-month="${m}">${m}</div>`
+  ).join("");
+
+  // Year click
+  yCont.querySelectorAll(".pill").forEach(el => {
+    el.onclick = () => {
+      selectedYear = parseInt(el.dataset.year);
+      selectedMonth = Object.keys(COURSE_DATA.lessons[selectedYear])[0] || COURSE_DATA.months[0];
+      renderFilters();
+      renderLessons();
+    };
+  });
+
+  // Month click
+  mCont.querySelectorAll(".pill").forEach(el => {
+    el.onclick = () => {
+      if(el.classList.contains('disabled')) return;
+      selectedMonth = el.dataset.month;
+      renderFilters();
+      renderLessons();
+    };
+  });
+}
+
+// Render lessons
+function renderLessons() {
+  document.getElementById("sectionTitle").textContent = `${selectedYear} ${selectedMonth}`;
+  const grid = document.getElementById("lessons");
+  const lessonsArr = (((COURSE_DATA.lessons || {})[selectedYear] || {})[selectedMonth]) || [];
+  grid.innerHTML = "";
+  if (lessonsArr.length === 0) {
+    return grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:${getComputedStyle(document.body).getPropertyValue('--muted')};">No lessons found for this month/year.</div>`;
+  }
+  lessonsArr.forEach(l => {
+    const card = document.createElement("div");
+    card.className = "lesson-card";
+    card.innerHTML = `
+      <div class="title">${l.title}</div>
+      <div style="display:flex; align-items:center; margin-bottom:0.5rem;">
+        ${l.live ? '<div class="live-badge"><i class="fas fa-signal-stream"></i> Web Player</div>' : ''}
+      </div>
+      <div class="lock">
+        <i class="fas fa-${purchased ? 'unlock' : 'lock'}"></i>
+        ${purchased ? "Access granted. Start watching." : "Purchase course to enable content"}
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// Button actions
+document.getElementById("btnAdd").onclick = () => {
+  cartCount++;
+  document.getElementById("cartCount").textContent = cartCount;
+  showToast("Added to cart");
+};
+document.getElementById("btnBuy").onclick = () => {
+  purchased = true;
+  showToast("Course purchased! Lessons unlocked.");
+  renderLessons();
+};
+
+// Initial render
+renderSidebar();
+renderFilters();
+renderLessons();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduWings - Welcome</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+        .welcome-container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 90%;
+        }
+        .logo {
+            width: 100px;
+            height: 100px;
+            background: #fff;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #667eea;
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 1rem;
+            margin-bottom: 25px;
+            color: #f1f1f1;
+        }
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        .btn {
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-login {
+            background: transparent;
+            color: #fff;
+            border: 2px solid #fff;
+        }
+        .btn-login:hover {
+            background: #fff;
+            color: #667eea;
+        }
+        .btn-signup {
+            background: #fff;
+            color: #667eea;
+        }
+        .btn-signup:hover {
+            background: #e2e8f0;
+        }
+        .image-section {
+            margin-top: 30px;
+        }
+        .image-section img {
+            width: 100%;
+            border-radius: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="welcome-container">
+        <div class="logo">
+    <img src="/assets/logo.png" alt="Logo" style="height: 50px; width: auto;">
+        </div>
+
+        <h1>Welcome to EduWings</h1>
+        <p>Excel in Your Education with Expert Guidance</p>
+        <div class="btn-container">
+            <a href="/login.html"><button class="btn btn-login">Login</button></a>
+            <a href="/signup.html"><button class="btn btn-signup">Sign Up</button></a>
+        </div>
+        <div class="image-section">
+            <img src="/assets/image.png" alt="Welcome Image">
+        </div>
+    </div>
+</body>
+</html>

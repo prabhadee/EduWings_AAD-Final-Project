@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Months to Purchase - EduAdmin</title>
+
+  <link rel="stylesheet" href="/css/admin.css"> <!-- optional: your shared CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    /* Keep most of your Batch Management CSS in /css/admin.css.
+       Small overrides for modal visibility and empty-state */
+    .modal { display: none; align-items: center; justify-content: center; }
+    .modal.show { display: flex; }
+    .empty-state { text-align: center; padding: 24px; color: rgba(255,255,255,0.8); }
+    /* minor form spacing */
+    .modal-content label { font-weight:600; display:block; margin-top:8px; color:#2d3748; }
+    .modal-content .form-row { margin-bottom: 6px; }
+  </style>
+</head>
+<body>
+  <div class="admin-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <h2>EduAdmin</h2>
+      <ul>
+        <li><a href="/pages/Admin/adminDashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="/pages/Admin/courseManagement.html" class="active"><i class="fas fa-book"></i> Course Management</a></li>
+                <li><a href="/pages/Admin/instructorManagement.html"><i class="fas fa-chalkboard-teacher"></i> Instructors</a></li>
+                <li><a href="/pages/Admin/batchManagement.html"><i class="fas fa-layer-group"></i> Batch Management</a></li>
+                <li><a href="/pages/Admin/batchMonth.html"><i class="fas fa-calendar-alt"></i> Months to Purchase</a></li>
+                <li><a href="/pages/Admin/videoModule.html"><i class="fas fa-th-list"></i> Module Details</a></li>
+                <li><a href="/pages/Admin/purchase.html"><i class="fas fa-shopping-cart"></i> Purchase</a></li>
+                <li><a href="/pages/Admin/userManagement.html"><i class="fas fa-users"></i> User Management</a></li>
+                <li><a href="/pages/Admin/payment.html"><i class="fas fa-credit-card"></i> Payment</a></li>
+                <li><a href="/welcome.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+      </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+      <header>
+        <h1>Months to Purchase</h1>
+        <button id="openModalBtn" class="btn">+ Add Month</button>
+      </header>
+
+      <section class="table-container">
+        <h2>Existing Months</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Month ID</th>
+              <th>Month Name</th>
+              <th>Batch Name</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="monthTableBody">
+            <!-- populated by JS -->
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </div>
+
+  <!-- Add/Edit Modal -->
+  <div id="monthModal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <button id="closeModalBtn" class="close-btn" style="background:none;border:none;font-size:22px;">&times;</button>
+      <h2 id="modalTitle">Add Month</h2>
+      <form id="monthForm">
+        <input type="hidden" id="monthId">
+
+        <div class="form-row">
+          <label for="monthName">Month Name</label>
+          <input type="text" id="monthName" placeholder="e.g., January" required />
+        </div>
+
+        <div class="form-row">
+          <label for="batchSelect">Select Batch</label>
+          <select id="batchSelect" required>
+            <option value="">-- Select Batch --</option>
+          </select>
+        </div>
+
+        <div style="margin-top:12px;">
+          <button type="submit" class="btn" id="saveMonthBtn">Save Month</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="/js/monthManagement.js"></script>
+</body>
+</html>
