@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Educational Platform - Chat Assistant</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #6e9cd2;
+            --background-color: #f5f7fb;
+            --user-chat-color: #e1e9f5;
+            --bot-chat-color: #f0f4f9;
+            --text-color: #333;
+            --light-text: #666;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: var(--light-text);
+            font-size: 1.2rem;
+        }
+        
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .chat-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .chat-header img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            position: relative;
+            line-height: 1.5;
+        }
+        
+        .user-message {
+            align-self: flex-end;
+            background-color: var(--user-chat-color);
+            border-bottom-right-radius: 5px;
+        }
+        
+        .bot-message {
+            align-self: flex-start;
+            background-color: var(--bot-chat-color);
+            border-bottom-left-radius: 5px;
+        }
+        
+        .chat-input {
+            display: flex;
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #eee;
+        }
+        
+        .chat-input input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            outline: none;
+            font-size: 16px;
+        }
+        
+        .chat-input button {
+            margin-left: 10px;
+            padding: 12px 20px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .chat-input button:hover {
+            background: var(--secondary-color);
+        }
+        
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-top: 1px solid #eee;
+        }
+        
+        .suggestion-chip {
+            padding: 8px 15px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 18px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .suggestion-chip:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .typing-indicator {
+            display: none;
+            align-self: flex-start;
+            background-color: var(--bot-chat-color);
+            border-radius: 18px;
+            padding: 12px 16px;
+            margin-bottom: 15px;
+        }
+        
+        .typing-dots {
+            display: flex;
+            align-items: center;
+            height: 17px;
+        }
+        
+        .typing-dots span {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: var(--light-text);
+            margin: 0 2px;
+            animation: typing 1.4s infinite both;
+        }
+        
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        .course-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .course-card:hover {
+            background-color: #f0f4f9;
+            transform: translateY(-2px);
+        }
+        
+        .instructor-card {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+        }
+        
+        .instructor-photo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 15px;
+            object-fit: cover;
+        }
+        
+        .batch-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        .module-list {
+            margin-top: 10px;
+            padding-left: 20px;
+        }
+        
+        .module-item {
+            margin: 5px 0;
+            padding: 8px;
+            background: #f9f9f9;
+            border-radius: 4px;
+        }
+        
+        .action-button {
+            padding: 8px 15px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .chat-container {
+                height: 500px;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Educational Platform Assistant</h1>
+            <p class="subtitle">Ask me about courses, instructors, batches, and pricing</p>
+        </header>
+        
+        <div class="chat-container">
+            <div class="chat-header">
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSJ3aGl0ZSIgZD0iTTI1NiA0OEMxNDEuMSA0OCA0OCAxNDEuMSA0OCAyNTZzOTMuMSAyMDggMjA4IDIwOCAyMDgtOTMuMSAyMDgtMjA4UzM3MC45IDQ4IDI1NiA0OHptMTI4LjYgMjQyLjJjMCAxOS4zLTE1LjYgMzQuOS0zNC45IDM0LjloLTg1LjljLTE5LjMgMC0zNC45LTE1LjYtMzNC45LTM0LjkgMC0xOS4zIDE1LjYtMzQuOSAzNC45LTM0LjloODUuOWMxOS4zIDAgMzQuOSAxNS42IDM0LjkgMzQuOXptMC03Ny44YzAgMTkuMy0xNS42IDM0LjktMzQuOSAzNC45aC0xODUuOGMtMTkuMyAwLTM0LjktMTUuNi0zNC45LTM0LjkgMC0xOS4zIDE1LjYtMzQuOSAzNC45LTM0LjloMTg1LjhjMTkuMyAwIDM0LjkgMTUuNiAzNC45IDM0Ljl6Ii8+PC9zdmc+" alt="Chatbot Icon">
+                <h2>Course Assistant</h2>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot-message">
+                    Hello! I'm your educational assistant. I can help you with information about our courses, instructors, batches, and pricing. What would you like to know?
+                </div>
+            </div>
+            
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="typing-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+            
+            <div class="suggestions" id="suggestionsContainer">
+                <div class="suggestion-chip" data-query="What courses do you offer?">Available courses</div>
+                <div class="suggestion-chip" data-query="Tell me about the instructors">Instructor information</div>
+                <div class="suggestion-chip" data-query="What are the batch schedules?">Batch schedules</div>
+                <div class="suggestion-chip" data-query="How much do courses cost?">Pricing information</div>
+            </div>
+            
+            <div class="chat-input">
+                <input type="text" id="messageInput" placeholder="Type your question here..." autocomplete="off">
+                <button id="sendButton">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageInput = document.getElementById('messageInput');
+            const sendButton = document.getElementById('sendButton');
+            const typingIndicator = document.getElementById('typingIndicator');
+            const suggestionsContainer = document.getElementById('suggestionsContainer');
+            
+            // Sample data - In a real application, this would come from your backend
+            const sampleCourses = [
+                { id: 1, courseName: "Web Development", description: "Learn full-stack web development with modern technologies like React, Node.js, and MongoDB." },
+                { id: 2, courseName: "Data Science", description: "Master data analysis, machine learning, and data visualization with Python and R." },
+                { id: 3, courseName: "Digital Marketing", description: "Learn SEO, social media marketing, content strategy, and analytics." }
+            ];
+            
+            const sampleInstructors = [
+                { id: 1, name: "Dr. Sarah Johnson", email: "s.johnson@example.com", phone: "+1-555-0101", courseId: 1, photo: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzQ0NjZhYSI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTAgM2MyLjIxIDAgNCAxLjc5IDQgNHMtMS43OSA0LTQgNC00LTEuNzktNC00IDEuNzktNCA0LTR6bTAgMTcuMDJjLTMuMzMgMC02LjI4LTEuNzEtOC02LjAyIDIuMDUtMy4xNiA1LjI2LTQuOTggOC01IDIuNzQuMDIgNS45NSAxLjg0IDggNS0xLjcyIDQuMzEtNC42NyA2LjAyLTggNi4wMnoiLz48L3N2Zz4=" },
+                { id: 2, name: "Prof. Michael Chen", email: "m.chen@example.com", phone: "+1-555-0102", courseId: 1, photo: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzQ0NjZhYSI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTAgM2MyLjIxIDAgNCAxLjc5IDQgNHMtMS43OSA0LTQgNC00LTEuNzktNC00IDEuNzktNCA0LTR6bTAgMTcuMDJjLTMuMzMgMC02LjI4LTEuNzEtOC02LjAyIDIuMDUtMy4xNiA1LjI2LTQuOTggOC01IDIuNzQuMDIgNS45NSAxLjg0IDggNS0xLjcyIDQuMzEtNC42NyA2LjAyLTggNi4wMnoiLz48L3N2Zz4=" },
+                { id: 3, name: "Dr. Emily Rodriguez", email: "e.rodriguez@example.com", phone: "+1-555-0103", courseId: 2, photo: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzQ0NjZhYSI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTAgM2MyLjIxIDAgNCAxLjc5IDQgNHMtMS43OSA0LTQgNC00LTEuNzktNC00IDEuNzktNCA0LTR6bTAgMTcuMDJjLTMuMzMgMC02LjI4LTEuNzEtOC02LjAyIDIuMDUtMy4xNiA5LjI2LTQuOTggOC01IDIuNzQuMDIgNS45NSAxLjg0IDggNS0xLjcyIDQuMzEtNC42NyA2LjAyLTggNi4wMnoiLz48L3N2Zz4=" },
+                { id: 4, name: "Mr. James Wilson", email: "j.wilson@example.com", phone: "+1-555-0104", courseId: 3, photo: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzQ0NjZhYSI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTAgM2MyLjIxIDAgNCAxLjc5IDQgNHMtMS43OSA0LTQgNC00LTEuNzktNC00IDEuNzktNCA0LTR6bTAgMTcuMDJjLTMuMzMgMC02LjI4LTEuNzEtOC02LjAyIDIuMDUtMy4xNiA1LjI2LTQuOTggOC01IDIuNzQuMDIgNS45NSAxLjg0IDggNS0xLjcyIDQuMzEtNC42NyA2LjAyLTggNi4wMnoiLz48L3N2Zz4=" }
+            ];
+            
+            const sampleBatches = [
+                { batchId: 1, batchName: "WD-2023-01", monthlyFee: 99.99, courseId: 1, instructorId: 1, 
+                  months: [
+                    { monthId: 1, monthName: "January", 
+                      modules: [
+                        { moduleId: 1, title: "Introduction to HTML & CSS", videoUrls: '["https://example.com/video1", "https://example.com/video2"]' },
+                        { moduleId: 2, title: "JavaScript Fundamentals", videoUrls: '["https://example.com/video3"]' }
+                      ] 
+                    },
+                    { monthId: 2, monthName: "February", 
+                      modules: [
+                        { moduleId: 3, title: "React Basics", videoUrls: '["https://example.com/video4", "https://example.com/video5"]' }
+                      ] 
+                    }
+                  ] 
+                },
+                { batchId: 2, batchName: "DS-2023-01", monthlyFee: 129.99, courseId: 2, instructorId: 3,
+                  months: [
+                    { monthId: 3, monthName: "January", 
+                      modules: [
+                        { moduleId: 4, title: "Python for Data Science", videoUrls: '["https://example.com/video6"]' },
+                        { moduleId: 5, title: "Data Visualization", videoUrls: '["https://example.com/video7", "https://example.com/video8"]' }
+                      ] 
+                    }
+                  ] 
+                },
+                { batchId: 3, batchName: "DM-2023-01", monthlyFee: 79.99, courseId: 3, instructorId: 4,
+                  months: [
+                    { monthId: 4, monthName: "January", 
+                      modules: [
+                        { moduleId: 6, title: "SEO Fundamentals", videoUrls: '["https://example.com/video9"]' }
+                      ] 
+                    },
+                    { monthId: 5, monthName: "February", 
+                      modules: [
+                        { moduleId: 7, title: "Social Media Marketing", videoUrls: '["https://example.com/video10", "https://example.com/video11"]' }
+                      ] 
+                    }
+                  ] 
+                }
+            ];
+            
+            // State management
+            let currentState = {
+                selectedCourse: null,
+                selectedInstructor: null,
+                selectedBatch: null
+            };
+            
+            // Function to add a message to the chat
+            function addMessage(text, isUser) {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message');
+                messageDiv.classList.add(isUser ? 'user-message' : 'bot-message');
+                
+                // Check if text contains HTML or is plain text
+                if (text.includes('<') && text.includes('>')) {
+                    messageDiv.innerHTML = text;
+                } else {
+                    messageDiv.textContent = text;
+                }
+                
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            // Function to show typing indicator
+            function showTypingIndicator() {
+                typingIndicator.style.display = 'block';
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            // Function to hide typing indicator
+            function hideTypingIndicator() {
+                typingIndicator.style.display = 'none';
+            }
+            
+            // Function to update suggestion chips
+            function updateSuggestions(suggestions) {
+                suggestionsContainer.innerHTML = '';
+                
+                suggestions.forEach(suggestion => {
+                    const chip = document.createElement('div');
+                    chip.classList.add('suggestion-chip');
+                    chip.textContent = suggestion.text;
+                    chip.setAttribute('data-action', suggestion.action);
+                    chip.setAttribute('data-data', JSON.stringify(suggestion.data || {}));
+                    
+                    chip.addEventListener('click', function() {
+                        const action = this.getAttribute('data-action');
+                        const data = JSON.parse(this.getAttribute('data-data') || '{}');
+                        handleSuggestionAction(action, data);
+                    });
+                    
+                    suggestionsContainer.appendChild(chip);
+                });
+            }
+            
+            // Function to handle suggestion actions
+            function handleSuggestionAction(action, data) {
+                switch(action) {
+                    case 'viewCourses':
+                        fetchCourses();
+                        break;
+                    case 'selectCourse':
+                        selectCourse(data.courseId);
+                        break;
+                    case 'viewInstructors':
+                        fetchInstructorsForCourse(data.courseId);
+                        break;
+                    case 'selectInstructor':
+                        selectInstructor(data.courseId, data.instructorId);
+                        break;
+                    case 'viewBatches':
+                        fetchBatchesForCourse(data.courseId);
+                        break;
+                    case 'selectBatch':
+                        selectBatch(data.batchId);
+                        break;
+                    case 'viewModules':
+                        fetchModulesForBatch(data.batchId);
+                        break;
+                    default:
+                        sendMessage(action);
+                }
+            }
+            
+            // Function to simulate sending message to backend
+            async function sendMessage(message) {
+                addMessage(message, true);
+                messageInput.value = '';
+                
+                showTypingIndicator();
+                
+                try {
+                    // Simulate API call delay
+                    await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
+                    
+                    // Process the message and generate response
+                    const response = processMessage(message);
+                    
+                    hideTypingIndicator();
+                    addMessage(response.message, false);
+                    
+                    // Update suggestions based on response
+                    if (response.suggestions) {
+                        updateSuggestions(response.suggestions);
+                    }
+                } catch (error) {
+                    hideTypingIndicator();
+                    addMessage("Sorry, I'm having trouble processing your request. Please try again later.", false);
+                    console.error('Error:', error);
+                }
+            }
+            
+            // Process message and generate response
+            function processMessage(message) {
+                const lowerMessage = message.toLowerCase();
+                
+                // Check for greetings
+                if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
+                    return {
+                        message: "Hello! How can I help you with our courses today?",
+                        suggestions: [
+                            { text: "Available courses", action: "viewCourses" },
+                            { text: "Instructor information", action: "Tell me about the instructors" },
+                            { text: "Batch schedules", action: "What are the batch schedules?" },
+                            { text: "Pricing information", action: "How much do courses cost?" }
+                        ]
+                    };
+                }
+                
+                // Check for course-related queries
+                if (lowerMessage.includes('course') || lowerMessage.includes('offer') || 
+                    lowerMessage.includes('what courses') || lowerMessage.includes('view courses')) {
+                    return {
+                        message: "Let me show you our available courses...",
+                        suggestions: [
+                            { text: "View Courses", action: "viewCourses" }
+                        ]
+                    };
+                }
+                
+                // Check for instructor-related queries
+                if (lowerMessage.includes('instructor') || lowerMessage.includes('teacher') || 
+                    lowerMessage.includes('professor') || lowerMessage.includes('tutor')) {
+                    return {
+                        message: "We have experienced instructors for all our courses. Would you like to see instructors for a specific course?",
+                        suggestions: sampleCourses.map(course => ({
+                            text: `Instructors for ${course.courseName}`,
+                            action: "viewInstructors",
+                            data: { courseId: course.id }
+                        }))
+                    };
+                }
+                
+                // Check for batch-related queries
+                if (lowerMessage.includes('batch') || lowerMessage.includes('schedule') || 
+                    lowerMessage.includes('time') || lowerMessage.includes('session')) {
+                    return {
+                        message: "We have multiple batches with flexible schedules. Which course are you interested in?",
+                        suggestions: sampleCourses.map(course => ({
+                            text: `Batches for ${course.courseName}`,
+                            action: "viewBatches",
+                            data: { courseId: course.id }
+                        }))
+                    };
+                }
+                
+                // Check for pricing-related queries
+                if (lowerMessage.includes('price') || lowerMessage.includes('cost') || 
+                    lowerMessage.includes('fee') || lowerMessage.includes('how much')) {
+                    return {
+                        message: "Our course pricing varies by program. Most monthly subscriptions range between $79-129. Would you like information about a specific course?",
+                        suggestions: sampleCourses.map(course => ({
+                            text: `Pricing for ${course.courseName}`,
+                            action: "viewBatches",
+                            data: { courseId: course.id }
+                        }))
+                    };
+                }
+                
+                // Default response for unrecognized queries
+                return {
+                    message: "I'm not sure how to answer that. Could you please rephrase your question or ask about our courses, instructors, batches, or pricing?",
+                    suggestions: [
+                        { text: "Available courses", action: "viewCourses" },
+                        { text: "Instructor information", action: "Tell me about the instructors" },
+                        { text: "Batch schedules", action: "What are the batch schedules?" },
+                        { text: "Pricing information", action: "How much do courses cost?" }
+                    ]
+                };
+            }
+            
+            // API functions to fetch data (simulated)
+            async function fetchCourses() {
+                showTypingIndicator();
+                
+                try {
+                    // Simulate API call delay
+                    await new Promise(resolve => setTimeout(resolve, 800));
+                    
+                    let coursesHTML = '<h3>Available Courses:</h3>';
+                    sampleCourses.forEach(course => {
+                        coursesHTML += `
+                            <div class="course-card">
+                                <h4>${course.courseName}</h4>
+                                <p>${course.description}</p>
+                                <button class="action-button select-course" data-course-id="${course.id}">Select This Course</button>
+                            </div>
+                        `;
+                    });
+                    
+                    hideTypingIndicator();
+                    addMessage(coursesHTML, false);
+                    
+                    // Add event listeners to course cards
+                    setTimeout(() => {
+                        document.querySelectorAll('.select-course').forEach(button => {
+                            button.addEventListener('click', function() {
+                                const courseId = parseInt(this.getAttribute('data-course-id'));
+                                selectCourse(courseId);
+                            });
+                        });
+                    }, 100);
+                    
+                    // Update suggestions
+                    updateSuggestions([
+                        { text: "View Instructors", action: "viewInstructors", data: { courseId: sampleCourses[0].id } },
+                        { text: "View Batches", action: "viewBatches", data: { courseId: sampleCourses[0].id } }
+                    ]);
+                    
+                } catch (error) {
+                    hideTypingIndicator();
+                    addMessage("Sorry, I couldn't fetch the courses at this time.", false);
+                    console.error('Error fetching courses:', error);
+                }
+            }
+            
+            async function selectCourse(courseId) {
+                showTypingIndicator();
+                
+                try {
+                    // Simulate API call delay
+                    await new Promise(resolve => setTimeout(resolve, 600));
+                    
+                    const course = sampleCourses.find(c => c.id === courseId);
+                    currentState.selectedCourse = course;
+                    
+                    hideTypingIndicator();
+                    addMessage(`You've selected: <strong>${course.courseName}</strong>. What would you like to know about this course?`, false);
+                    
+                    // Update suggestions
+                    updateSuggestions([
+                        { text: "View Instructors", action: "viewInstructors", data: { courseId: courseId } },
+                        { text: "View Batches", action: "viewBatches", data: { courseId: courseId } },
+                        { text: "Course Details", action: `Tell me more about ${course.courseName}` }
+                    ]);
+                    
+                } catch (error) {
+                    hideTypingIndicator();
+                    addMessage("Sorry, I couldn't fetch the course details at this time.", false);
+                    console.error('Error fetching course:', error);
+                }
+            }
+            
+            async function fetchInstructorsForCourse(courseId) {
+                showTypingIndicator();
+                
+                try {
+                    // Simulate API call delay
+                    await new Promise(resolve => setTimeout(resolve, 700));
+                    
+                    const instructors = sampleInstructors.filter(i => i.courseId === courseId);
+                    
+                    let instructorsHTML = '<h3>Instructors for this course:</h3>';
+                    instructors.forEach(instructor => {
+                        instructorsHTML += `
+                            <div class="instructor-card">
+                                <img src="${instructor.photo}" alt="${instructor.name}" class="instructor-photo">
+                                <div>
+                                    <h4>${instructor.name}</h4>
+                                    <p>Email: ${instructor.email}</p>
+                                    <p>Phone: ${instructor.phone}</p>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    hideTypingIndicator();
+                    addMessage(instructorsHTML, false);
+                    
+                } catch (error) {
+                    hideTypingIndicator();
+                    addMessage("Sorry, I couldn't fetch the instructors at this time.", false);
+                    console.error('Error fetching instructors:', error);
+                }
+            }
+            
+            async function fetchBatchesForCourse(courseId) {
+                showTypingIndicator();
+                
+                try {
+                    // Simulate API call delay
+                    await new Promise(resolve => setTimeout(resolve, 700));
+                    
+                    const batches = sampleBatches.filter(b => b.courseId === courseId);
+                    const course = sampleCourses.find(c => c.id === courseId);
+                    
+                    let batchesHTML = `<h3>Available Batches for ${course.courseName}:</h3>`;
+                    batches.forEach(batch => {
+                        batchesHTML += `
+                            <div class="batch-card">
+                                <h4>${batch.batchName}</h4>
+                                <p>Monthly Fee: $${batch.monthlyFee}</p>
+                                <button class="action-button select-batch" data-batch-id="${batch.batchId}">View Details</button>
+                            </div>
+                        `;
+                    });
+                    
+                    hideTypingIndicator();
+                    addMessage(batchesHTML, false);
+                    
+                    // Add event listeners to batch buttons
+                    setTimeout(() => {
+                        document.querySelectorAll('.select-batch').forEach(button => {
+                            button.addEventListener('click', function() {
+                                const batchId = parseInt(this.getAttribute('data-batch-id'));
+                                selectBatch(batchId);
+                            });
+                        });
+                    }, 100);
+                    
+                } catch (error) {
+                    hideTypingIndicator();
+                    addMessage("Sorry, I couldn't fetch the batches at this time.", false);
+                    console.error('Error fetching batches:', error);
+                }
+            }
+            
+            async function selectBatch(batchId) {
+                showTypingIndicator();
+                
+                try {
+                    // Simulate API call delay
+                    await new Promise(resolve => setTimeout(resolve, 800));
+                    
+                    const batch = sampleBatches.find(b => b.batchId === batchId);
+                    currentState.selectedBatch = batch;
+                    
+                    const instructor = sampleInstructors.find(i => i.id === batch.instructorId);
+                    const course = sampleCourses.find(c => c.id === batch.courseId);
+                    
+                    let batchHTML = `
+                        <h3>Batch Details:</h3>
+                        <div class="batch-card">
+                            <h4>${batch.batchName}</h4>
+                            <p>Course: ${course.courseName}</p>
+                            <p>Monthly Fee: $${batch.monthlyFee}</p>
+                            <p>Instructor: ${instructor.name}</p>
+                    `;
+                    
+                    if (batch.months && batch.months.length > 0) {
+                        batchHTML += `<h4>Monthly Modules:</h4>`;
+                        
+                        batch.months.forEach(month => {
+                            batchHTML += `
+                                <div class="module-item">
+                                    <h5>${month.monthName}</h5>
+                                    <div class="module-list">
+                            `;
+                            
+                            if (month.modules && month.modules.length > 0) {
+                                month.modules.forEach(module => {
+                                    batchHTML += `<div><strong>${module.title}</strong></div>`;
+                                    
+                                    // Parse video URLs
+                                    let videoUrls = [];
+                                    try {
+                                        videoUrls = JSON.parse(module.videoUrls);
+                                    } catch (e) {
+                                        console.error('Error parsing video URLs:', e);
+                                    }
+                                    
+                                    if (videoUrls && videoUrls.length > 0) {
+                                        videoUrls.forEach(url => {
+                                            batchHTML += `<small><a href="${url}" target="_blank">${url}</a></small><br>`;
+                                        });
+                                    }
+                                });
+                            } else {
+                                batchHTML += `<div>No modules uploaded yet for this month.</div>`;
+                            }
+                            
+                            batchHTML += `</div></div>`;
+                        });
+                    } else {
+                        batchHTML += `<p>No monthly modules available yet.</p>`;
+                    }
+                    
+                    batchHTML += `</div>`;
+                    
+                    hideTypingIndicator();
+                    addMessage(batchHTML, false);
+                    
+                    // Update suggestions
+                    updateSuggestions([
+                        { text: "Enroll in this batch", action: `I want to enroll in ${batch.batchName}` },
+                        { text: "View other batches", action: "viewBatches", data: { courseId: course.id } }
+                    ]);
+                    
+                } catch (error) {
+                    hideTypingIndicator();
+                    addMessage("Sorry, I couldn't fetch the batch details at this time.", false);
+                    console.error('Error fetching batch:', error);
+                }
+            }
+            
+            // Event listener for send button
+            sendButton.addEventListener('click', function() {
+                const message = messageInput.value.trim();
+                if (message) {
+                    sendMessage(message);
+                }
+            });
+            
+            // Event listener for enter key
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const message = messageInput.value.trim();
+                    if (message) {
+                        sendMessage(message);
+                    }
+                }
+            });
+            
+            // Event listeners for initial suggestion chips
+            document.querySelectorAll('.suggestion-chip').forEach(chip => {
+                chip.addEventListener('click', function() {
+                    const query = this.getAttribute('data-query');
+                    sendMessage(query);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

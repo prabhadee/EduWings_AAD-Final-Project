@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enrollment - EduWings</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --shadow-light: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --shadow-medium: 0 16px 64px rgba(0, 0, 0, 0.15);
+            --shadow-heavy: 0 24px 96px rgba(0, 0, 0, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--primary-gradient);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Navigation styles */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 1000;
+            padding: 1rem 0;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2.5rem;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        /* Main content */
+        .main-content {
+            max-width: 1400px;
+            margin: 100px auto 50px;
+            padding: 0 2rem;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-title {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            margin-bottom: 1rem;
+            font-weight: 800;
+        }
+
+        .page-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Loading */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 300px;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .loading::before {
+            content: '';
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Month selection styles */
+        .month-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .month-checkbox {
+            display: none;
+        }
+        
+        .month-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+            background: var(--glass-bg);
+            border: 2px solid var(--glass-border);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .month-checkbox:checked + .month-label {
+            background: var(--accent-gradient);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-light);
+        }
+        
+        .month-name {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .month-price {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .total-price {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 2rem 0;
+            padding: 1rem;
+            background: var(--glass-bg);
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .enrollment-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            padding: 2rem;
+            box-shadow: var(--shadow-light);
+            margin-bottom: 2rem;
+        }
+
+        .batch-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .batch-detail {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .batch-label {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-bottom: 0.2rem;
+        }
+
+        .batch-value {
+            font-weight: 600;
+        }
+
+        /* Module preview section */
+        .module-preview {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: var(--glass-bg);
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .module-preview h3 {
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            border-bottom: 2px solid var(--glass-border);
+            padding-bottom: 0.5rem;
+        }
+
+        .month-modules {
+            margin-bottom: 1.5rem;
+        }
+
+        .month-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .month-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .module-list {
+            padding-left: 1.5rem;
+        }
+
+        .module-item {
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 6px;
+            border-left: 3px solid var(--accent-gradient);
+        }
+
+        .no-modules {
+            text-align: center;
+            padding: 1rem;
+            opacity: 0.7;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="logo">EduWings</div>
+            <ul class="nav-menu">
+                <li><a href="/index.html">Home</a></li>
+                <li><a href="/pages/student/courses.html">Courses</a></li>
+                <li><a href="/index.html#about">About</a></li>
+                <li><a href="/pages/student/instructors.html">Instructors</a></li>
+                <li><a href="#mycourses">My Courses</a></li>
+                <li><a href="/pages/student/contact.html">Contact</a></li>
+            </ul>
+            <div class="auth-buttons">
+                <a href="/welcome.html" class="btn btn-outline">LogOut</a>
+            </div>
+            <div class="mobile-menu" id="mobileMenu">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Course Enrollment</h1>
+            <p class="page-subtitle">Select months to enroll in your chosen batch and see the modules included</p>
+        </div>
+        
+        <div id="enrollmentDetails" class="enrollment-card">
+            <!-- Details will be auto-filled here -->
+        </div>
+        
+        <div id="monthSelection" style="display: none;">
+            <h2>Select Months</h2>
+            <div class="month-selection" id="monthsContainer">
+                <!-- Months will be populated here -->
+            </div>
+            
+            <!-- Module preview section -->
+            <div id="modulePreview" class="module-preview" style="display: none;">
+                <h3><i class="fas fa-list-check"></i> Selected Content Preview</h3>
+                <div id="modulesList">
+                    <!-- Selected modules will be displayed here -->
+                </div>
+            </div>
+            
+            <div class="total-price">
+                Total: Rs. <span id="totalAmount">0.00</span>
+            </div>
+            
+            <div style="text-align: center;">
+                <button class="btn" onclick="processEnrollment()">
+                    <i class="fas fa-check-circle"></i> Confirm Enrollment
+                </button>
+            </div>
+        </div>
+        
+        <div id="loadingEnrollment" class="loading">
+            Loading enrollment details...
+        </div>
+    </div>
+
+    <script>
+        // Backend API configuration
+        const API_BASE_URL = 'http://localhost:8080/api';
+        const token = localStorage.getItem('accessToken');
+        
+        // Global variables
+        let batchId = null;
+        let monthlyFee = 0;
+        let selectedMonths = [];
+        let allCourses = [];
+        let allInstructors = [];
+        let allMonths = []; // Store all months
+        let monthModulesMap = new Map(); // Map to store modules for each month
+
+        document.addEventListener('DOMContentLoaded', () => {
+            batchId = localStorage.getItem('selectedBatchId');
+            
+            if (!batchId) {
+                // Redirect back if no batch selected
+                window.location.href = '/pages/student/instructors.html';
+                return;
+            }
+            
+            // Load courses and instructors first
+            Promise.all([loadCourses(), loadInstructors()])
+                .then(() => loadBatchDetails())
+                .catch(error => {
+                    console.error('Error loading data:', error);
+                    Swal.fire('Error', 'Failed to load enrollment data', 'error');
+                });
+        });
+
+        async function loadCourses() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/courses/getall`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+                
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                
+                allCourses = await response.json();
+            } catch (error) {
+                console.error('Error loading courses:', error);
+                throw error;
+            }
+        }
+
+        async function loadInstructors() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/instructors/getall`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+                
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                
+                allInstructors = await response.json();
+            } catch (error) {
+                console.error('Error loading instructors:', error);
+                throw error;
+            }
+        }
+        
+        async function loadBatchDetails() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/batches/${batchId}`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const batch = await response.json();
+                monthlyFee = batch.monthlyFee;
+                
+                // Display batch details
+                displayBatchDetails(batch);
+                
+                // Load available months
+                loadAvailableMonths();
+                
+            } catch (error) {
+                console.error('Error loading batch details:', error);
+                Swal.fire('Error', 'Failed to load batch details', 'error');
+            }
+        }
+        
+        function displayBatchDetails(batch) {
+            const enrollmentDetails = document.getElementById('enrollmentDetails');
+            const course = allCourses.find(c => c.id === batch.courseId);
+            const instructor = allInstructors.find(i => i.id === batch.instructorId);
+            
+            enrollmentDetails.innerHTML = `
+                <h3>Enrollment Details</h3>
+                <div class="batch-details">
+                    <div class="batch-detail">
+                        <span class="batch-label">Batch</span>
+                        <span class="batch-value">${batch.batchName}</span>
+                    </div>
+                    <div class="batch-detail">
+                        <span class="batch-label">Course</span>
+                        <span class="batch-value">${course ? course.courseName : 'Unknown'}</span>
+                    </div>
+                    <div class="batch-detail">
+                        <span class="batch-label">Instructor</span>
+                        <span class="batch-value">${instructor ? instructor.name : 'Unknown'}</span>
+                    </div>
+                    <div class="batch-detail">
+                        <span class="batch-label">Monthly Fee</span>
+                        <span class="batch-value">Rs. ${batch.monthlyFee.toFixed(2)}</span>
+                    </div>
+                </div>
+            `;
+        }
+        
+        async function loadAvailableMonths() {
+            try {
+                // Fetch months for this batch
+                const response = await fetch(`${API_BASE_URL}/months/batch/${batchId}`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+                
+                if (response.ok) {
+                    const months = await response.json();
+                    allMonths = months;
+                    displayMonths(months);
+                    
+                    // Preload modules for all months
+                    await loadAllModules(months);
+                } else {
+                    // If endpoint not available, use sample data
+                    displaySampleMonths();
+                }
+                
+            } catch (error) {
+                console.error('Error loading months:', error);
+                // Use sample data if backend endpoint is not available
+                displaySampleMonths();
+            }
+        }
+        
+        async function loadAllModules(months) {
+            const monthIds = months.map(month => month.monthId);
+            
+            try {
+                // Fetch modules for all months in this batch
+                const response = await fetch(`${API_BASE_URL}/modules/by-months`, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(monthIds)
+                });
+                
+                if (response.ok) {
+                    const modules = await response.json();
+                    
+                    // Organize modules by month ID
+                    modules.forEach(module => {
+                        if (!monthModulesMap.has(module.monthId)) {
+                            monthModulesMap.set(module.monthId, []);
+                        }
+                        monthModulesMap.get(module.monthId).push(module);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading modules:', error);
+                // Continue even if modules can't be loaded
+            }
+        }
+        
+        function displayMonths(months) {
+            const monthsContainer = document.getElementById('monthsContainer');
+            monthsContainer.innerHTML = '';
+            
+            months.forEach(month => {
+                const monthId = `month-${month.monthId}`;
+                
+                const monthElement = document.createElement('div');
+                monthElement.innerHTML = `
+                    <input type="checkbox" id="${monthId}" class="month-checkbox" value="${month.monthId}" 
+                           data-month-name="${month.monthName}" onchange="updateSelection()">
+                    <label for="${monthId}" class="month-label">
+                        <span class="month-name">${month.monthName}</span>
+                        <span class="month-price">Rs. ${monthlyFee.toFixed(2)}</span>
+                    </label>
+                `;
+                
+                monthsContainer.appendChild(monthElement);
+            });
+            
+            // Show month selection
+            document.getElementById('loadingEnrollment').style.display = 'none';
+            document.getElementById('monthSelection').style.display = 'block';
+        }
+        
+        // Temporary function until backend is ready
+        function displaySampleMonths() {
+            const monthsContainer = document.getElementById('monthsContainer');
+            monthsContainer.innerHTML = '';
+            
+            // Sample months with module data
+            const sampleMonths = [
+                {monthId: 1, monthName: 'January'},
+                {monthId: 2, monthName: 'February'},
+                {monthId: 3, monthName: 'March'},
+                {monthId: 4, monthName: 'April'},
+                {monthId: 5, monthName: 'May'},
+                {monthId: 6, monthName: 'June'},
+                {monthId: 7, monthName: 'July'},
+                {monthId: 8, monthName: 'August'},
+                {monthId: 9, monthName: 'September'},
+                {monthId: 10, monthName: 'October'},
+                {monthId: 11, monthName: 'November'},
+                {monthId: 12, monthName: 'December'}
+            ];
+            
+            allMonths = sampleMonths;
+            
+            // Add sample modules to the map
+            monthModulesMap.set(1, [
+                {moduleId: 101, title: 'Introduction to Course', monthId: 1},
+                {moduleId: 102, title: 'Basic Concepts and Terminology', monthId: 1},
+                {moduleId: 103, title: 'Setting Up Your Environment', monthId: 1}
+            ]);
+            
+            monthModulesMap.set(2, [
+                {moduleId: 201, title: 'Advanced Techniques', monthId: 2},
+                {moduleId: 202, title: 'Practical Applications', monthId: 2},
+                {moduleId: 203, title: 'Case Study Analysis', monthId: 2}
+            ]);
+            
+            monthModulesMap.set(3, [
+                {moduleId: 301, title: 'Project Development', monthId: 3},
+                {moduleId: 302, title: 'Best Practices', monthId: 3},
+                {moduleId: 303, title: 'Troubleshooting Common Issues', monthId: 3}
+            ]);
+            
+            // Add modules for other months
+            for (let i = 4; i <= 12; i++) {
+                monthModulesMap.set(i, [
+                    {moduleId: i * 100 + 1, title: `Month ${i} Module 1`, monthId: i},
+                    {moduleId: i * 100 + 2, title: `Month ${i} Module 2`, monthId: i},
+                    {moduleId: i * 100 + 3, title: `Month ${i} Module 3`, monthId: i}
+                ]);
+            }
+            
+            sampleMonths.forEach(month => {
+                const monthId = `month-${month.monthId}`;
+                
+                const monthElement = document.createElement('div');
+                monthElement.innerHTML = `
+                    <input type="checkbox" id="${monthId}" class="month-checkbox" value="${month.monthId}" 
+                           data-month-name="${month.monthName}" onchange="updateSelection()">
+                    <label for="${monthId}" class="month-label">
+                        <span class="month-name">${month.monthName}</span>
+                        <span class="month-price">Rs. ${monthlyFee.toFixed(2)}</span>
+                    </label>
+                `;
+                
+                monthsContainer.appendChild(monthElement);
+            });
+            
+            // Show month selection
+            document.getElementById('loadingEnrollment').style.display = 'none';
+            document.getElementById('monthSelection').style.display = 'block';
+        }
+        
+        function updateSelection() {
+            const checkboxes = document.querySelectorAll('.month-checkbox:checked');
+            selectedMonths = Array.from(checkboxes).map(checkbox => ({
+                id: parseInt(checkbox.value),
+                name: checkbox.getAttribute('data-month-name')
+            }));
+            
+            const total = selectedMonths.length * monthlyFee;
+            document.getElementById('totalAmount').textContent = total.toFixed(2);
+            
+            // Update module preview
+            updateModulePreview();
+        }
+        
+        function updateModulePreview() {
+            const modulesList = document.getElementById('modulesList');
+            const modulePreview = document.getElementById('modulePreview');
+            
+            if (selectedMonths.length === 0) {
+                modulePreview.style.display = 'none';
+                return;
+            }
+            
+            modulePreview.style.display = 'block';
+            modulesList.innerHTML = '';
+            
+            selectedMonths.forEach(month => {
+                const monthModules = monthModulesMap.get(month.id) || [];
+                const monthElement = document.createElement('div');
+                monthElement.className = 'month-modules';
+                
+                let modulesHTML = '';
+                if (monthModules.length > 0) {
+                    modulesHTML = monthModules.map(module => 
+                        `<div class="module-item">${module.title}</div>`
+                    ).join('');
+                } else {
+                    modulesHTML = `<div class="no-modules">No modules available for this month</div>`;
+                }
+                
+                monthElement.innerHTML = `
+                    <div class="month-header">
+                        <span class="month-title">${month.name}</span>
+                        <span class="module-count">${monthModules.length} modules</span>
+                    </div>
+                    <div class="module-list">
+                        ${modulesHTML}
+                    </div>
+                `;
+                
+                modulesList.appendChild(monthElement);
+            });
+        }
+        
+      async function processEnrollment() {
+    if (selectedMonths.length === 0) {
+        Swal.fire('Warning', 'Please select at least one month', 'warning');
+        return;
+    }
+    
+    try {
+        // Prepare enrollment data
+        const enrollmentData = {
+            batchId: parseInt(batchId),
+            studentId: getCurrentStudentId(),
+            selectedMonthIds: selectedMonths.map(month => month.id),
+            totalAmount: selectedMonths.length * monthlyFee,
+            monthlyFee: monthlyFee,
+            monthDetails: selectedMonths.map(month => ({
+                id: month.id,
+                name: month.name
+            }))
+        };
+        
+        // Save enrollment data to localStorage for the payment page
+        localStorage.setItem('enrollmentData', JSON.stringify(enrollmentData));
+        
+        // Redirect to payment page
+        window.location.href = '/pages/student/payment.html';
+        
+    } catch (error) {
+        console.error('Error preparing enrollment:', error);
+        Swal.fire('Error', 'Failed to process enrollment', 'error');
+    }
+}
+        
+        function getCurrentStudentId() {
+            // Implement this based on your authentication system
+            // This might come from JWT token or user session
+            // For now, return a placeholder
+            return 1;
+        }
+    </script>
+</body>
+</html>

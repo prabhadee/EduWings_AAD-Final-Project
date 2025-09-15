@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - EduWings</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --shadow-light: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--primary-gradient);
+            color: #fff; min-height:100vh; overflow-x:hidden;
+        }
+
+        .navbar {
+            position: fixed; top:0; width:100%; background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px); z-index:1000; padding:1rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .nav-container { max-width:1400px; margin:0 auto; padding:0 2rem; display:flex; justify-content:space-between; align-items:center; }
+        .logo { font-size:2rem; font-weight:800; background: var(--primary-gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .nav-menu { display:flex; list-style:none; gap:2.5rem; }
+        .nav-menu a { text-decoration:none; color:#333; font-weight:600; font-size:0.95rem; }
+        .auth-buttons .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; background: var(--primary-gradient); color:white; border:none; padding:12px 24px; font-weight:600; border-radius:50px; text-decoration:none; }
+
+        .main-content { max-width:1400px; margin:100px auto 50px; padding:0 2rem; }
+        .page-header { text-align:center; margin-bottom:3rem; }
+        .page-title { font-size:clamp(2.5rem,5vw,4rem); margin-bottom:1rem; font-weight:800; }
+        .page-subtitle { font-size:1.2rem; opacity:0.9; max-width:600px; margin:0 auto; }
+
+        .payment-container { display:grid; grid-template-columns:1fr 1fr; gap:2rem; }
+        @media (max-width:768px) { .payment-container { grid-template-columns:1fr; } }
+
+        .order-summary, .payment-methods {
+            background: var(--glass-bg); backdrop-filter: blur(12px); border-radius:20px; border:1px solid var(--glass-border);
+            padding:2rem; box-shadow:var(--shadow-light);
+        }
+
+        .order-summary h3, .payment-methods h3 { margin-bottom:1.5rem; font-size:1.5rem; border-bottom:2px solid var(--glass-border); padding-bottom:0.5rem; }
+        .summary-item { display:flex; justify-content:space-between; margin-bottom:1rem; padding-bottom:0.5rem; border-bottom:1px solid rgba(255,255,255,0.1); }
+        .summary-total { display:flex; justify-content:space-between; font-size:1.2rem; font-weight:700; margin-top:1.5rem; padding-top:1rem; border-top:2px solid var(--glass-border); }
+
+        .payment-option { background: rgba(255,255,255,0.05); border:2px solid var(--glass-border); border-radius:15px; padding:1.5rem; margin-bottom:1rem; cursor:pointer; transition:all 0.3s ease; }
+        .payment-option:hover { background: rgba(255,255,255,0.1); transform:translateY(-2px); }
+        .payment-option.selected { background: var(--accent-gradient); border-color: rgba(255,255,255,0.5); }
+        .payment-option-header { display:flex; align-items:center; gap:1rem; margin-bottom:1rem; }
+        .payment-icon { font-size:2rem; width:50px; height:50px; display:flex; align-items:center; justify-content:center; background: rgba(255,255,255,0.1); border-radius:10px; }
+        .payment-title { font-weight:600; font-size:1.1rem; }
+        .payment-form { margin-top:1rem; display:none; }
+        .payment-option.selected .payment-form { display:block; }
+        .form-group { margin-bottom:1rem; }
+        .form-group label { display:block; margin-bottom:0.5rem; font-weight:600; }
+        .form-group input { width:100%; padding:0.8rem 1rem; border:1px solid var(--glass-border); border-radius:10px; background: rgba(255,255,255,0.1); color:white; font-size:1rem; }
+
+        .payhere-btn {
+            background:#00a651; color:white; border:none; padding:12px 24px; font-weight:600; border-radius:5px; cursor:pointer; display:inline-flex; align-items:center; gap:8px;
+        }
+        .payhere-btn:hover { background:#008f44; transform:translateY(-2px); }
+
+        .loading { display:flex; justify-content:center; align-items:center; height:300px; color:white; font-size:1.2rem; }
+        .loading::before { content:''; width:40px; height:40px; border:4px solid rgba(255,255,255,0.3); border-top:4px solid white; border-radius:50%; animation:spin 1s linear infinite; margin-right:1rem; }
+        @keyframes spin { 0% { transform:rotate(0deg); } 100% { transform:rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">EduWings</div>
+            <ul class="nav-menu">
+                <li><a href="/index.html">Home</a></li>
+                <li><a href="/pages/student/courses.html">Courses</a></li>
+                <li><a href="/index.html#about">About</a></li>
+                <li><a href="/pages/student/instructors.html">Instructors</a></li>
+                <li><a href="#mycourses">My Courses</a></li>
+                <li><a href="/pages/student/contact.html">Contact</a></li>
+            </ul>
+            <div class="auth-buttons">
+                <a href="/welcome.html" class="btn btn-outline" onclick="logout()">LogOut</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Complete Your Payment</h1>
+            <p class="page-subtitle">Secure payment processing for your course enrollment</p>
+        </div>
+
+        <div class="payment-container">
+            <div class="order-summary">
+                <h3>Order Summary</h3>
+                <div id="orderDetails"></div>
+            </div>
+
+            <div class="payment-methods">
+                <h3>Payment Method</h3>
+
+                <!-- Credit Card Option -->
+                <div class="payment-option" onclick="selectPaymentMethod(event,'card')">
+                    <div class="payment-option-header">
+                        <div class="payment-icon"><i class="fas fa-credit-card"></i></div>
+                        <div class="payment-title">Credit/Debit Card</div>
+                    </div>
+                    <div class="payment-form" id="cardForm">
+                        <div class="form-group"><label for="cardNumber">Card Number</label><input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19"></div>
+                        <div class="form-row">
+                            <div class="form-group"><label for="expiryDate">Expiry Date</label><input type="text" id="expiryDate" placeholder="MM/YY" maxlength="5"></div>
+                            <div class="form-group"><label for="cvv">CVV</label><input type="text" id="cvv" placeholder="123" maxlength="3"></div>
+                        </div>
+                        <div class="form-group"><label for="cardName">Name on Card</label><input type="text" id="cardName" placeholder="John Doe"></div>
+                    </div>
+                </div>
+
+                <!-- PayHere Option -->
+                <div class="payment-option" onclick="selectPaymentMethod(event,'payhere')">
+                    <div class="payment-option-header">
+                        <div class="payment-icon"><i class="fas fa-credit-card"></i></div>
+                        <div class="payment-title">PayHere (Recommended)</div>
+                    </div>
+                    <div class="payment-form" id="payhereForm">
+                        <p>Secure payment via PayHere gateway. You will be redirected to complete your payment.</p>
+                        <button class="payhere-btn" onclick="initiatePayHerePayment()"> <i class="fas fa-lock"></i> Pay with PayHere </button>
+                    </div>
+                </div>
+
+                <!-- Bank Transfer Option -->
+                <div class="payment-option" onclick="selectPaymentMethod(event,'bank')">
+                    <div class="payment-option-header">
+                        <div class="payment-icon"><i class="fas fa-university"></i></div>
+                        <div class="payment-title">Bank Transfer</div>
+                    </div>
+                    <div class="payment-form" id="bankForm">
+                        <p>Make a transfer to our bank account:</p>
+                        <p><strong>Bank:</strong> Commercial Bank of Ceylon</p>
+                        <p><strong>Account Name:</strong> EduWings (Pvt) Ltd</p>
+                        <p><strong>Account Number:</strong> 1234567890</p>
+                        <p><strong>Branch:</strong> Colombo Main</p>
+                        <p>Please use your Student ID as the reference.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="loadingPayment" class="loading" style="display:none;">Processing your payment...</div>
+    </div>
+
+    <script type="text/javascript" src="https://www.payhere.lk/lib/payhere.js"></script>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8080/api';
+        const token = localStorage.getItem('accessToken');
+        let selectedPaymentMethod = null;
+        let enrollmentData = null;
+        let currentUser = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedEnrollment = localStorage.getItem('enrollmentData');
+            if (savedEnrollment) enrollmentData = JSON.parse(savedEnrollment);
+            else {
+                Swal.fire('Error', 'No enrollment data found.', 'error')
+                .then(()=>window.location.href='/pages/student/instructors.html');
+            }
+
+            displayOrderSummary();
+
+            fetch(`${API_BASE_URL}/user/current`, { headers: { "Authorization": `Bearer ${token}` } })
+            .then(res=>res.json())
+            .then(user=>currentUser=user)
+            .catch(err=>{
+                console.error(err);
+                Swal.fire('Error','Unable to load user details.','error')
+                .then(()=>window.location.href="/welcome.html");
+            });
+        });
+
+        function displayOrderSummary() {
+            const orderDetails = document.getElementById('orderDetails');
+            if (!enrollmentData) { orderDetails.innerHTML="<p>No order data found.</p>"; return; }
+
+            let summaryHTML = `
+                <div class="summary-item"><span>Batch Enrollment</span><span>Rs. ${(enrollmentData.totalAmount || 0).toFixed(2)}</span></div>
+                <div class="summary-item"><span>Months Selected</span><span>${(enrollmentData.selectedMonthIds?.length || 0)}</span></div>
+            `;
+
+            enrollmentData.monthDetails?.forEach(month=>{
+                summaryHTML += `
+                    <div class="summary-item" style="margin-left:1rem;">
+                        <span>${month.name}</span>
+                        <span>Rs. ${(enrollmentData.monthlyFee || 0).toFixed(2)}</span>
+                    </div>
+                `;
+            });
+
+            summaryHTML += `<div class="summary-total"><span>Total Amount</span><span>Rs. ${(enrollmentData.totalAmount || 0).toFixed(2)}</span></div>`;
+            orderDetails.innerHTML = summaryHTML;
+        }
+
+        // function selectPaymentMethod(event, method) {
+        //     document.querySelectorAll('.payment-option').forEach(option=>option.classList.remove('selected'));
+        //     event.currentTarget.classList.add('selected');
+        //     selectedPaymentMethod = method;
+        // }
+
+         function selectPaymentMethod(event, method) {
+            document.querySelectorAll('.payment-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+            selectedPaymentMethod = method;
+        }
+        
+        function getCurrentStudentId() {
+            const studentId= localStorage.getItem("studentId");
+            // if (storedId) return storedId;
+            // const userData = localStorage.getItem('userData');
+            // if (userData) return JSON.parse(userData).id;
+            if(studentId) return JSON.parse(studentId);
+            if (token) {
+                try { return JSON.parse(atob(token.split('.')[1])).userId || null; }
+                catch(e){ console.error(e); }
+            }
+            return null;
+        }
+
+        // function initiatePayHerePayment() {
+        //     if (!enrollmentData || !currentUser) { Swal.fire('Error','Enrollment or user missing.','error'); return; }
+        //     const studentId = JSON.parse(localStorage.getItem("studentId"));
+
+        //     if (!studentId) { Swal.fire('Error','Unable to identify student.','error'); return; }
+
+        //     enrollmentData.studentId = studentId;
+        //     document.getElementById('loadingPayment').style.display = 'flex';
+
+        //     const paymentData = {
+        //         amount: enrollmentData.totalAmount || 0,
+        //         paymentDate: new Date().toISOString(),
+        //         status: "PENDING",
+        //         referenceNumber: "REF"+Date.now(),
+        //         userId: currentUser.id,
+        //         userEmail: currentUser.email || "noemail@example.com",
+        //         monthIds: enrollmentData.selectedMonthIds || [],
+        //         description: "Course Enrollment"
+        //     };
+
+        //     fetch(`${API_BASE_URL}/payments/create`, {
+        //         method:"POST",
+        //         headers: { "Authorization":`Bearer ${token}`, "Content-Type":"application/json" },
+        //         body: JSON.stringify(paymentData)
+        //     })
+        //     .then(async res=>{
+        //         const data = await res.json();
+        //         if (!res.ok) throw new Error(data.error || "Failed to create payment");
+        //         startPayHerePayment(data.paymentId, data.amount, data);
+        //     })
+        //     .catch(err=>{
+        //         console.error(err);
+        //         document.getElementById('loadingPayment').style.display='none';
+        //         Swal.fire('Error',err.message || 'Failed to initiate payment.','error');
+        //     });
+        // }
+
+        // function startPayHerePayment(paymentId, amount, items) {
+        //     const payment = {
+        //         sandbox:true,
+        //         merchant_id:"1232027",
+        //         return_url:`${API_BASE_URL}/payments/success/${paymentId}`,
+        //         cancel_url:`${API_BASE_URL}/payments/cancel/${paymentId}`,
+        //         notify_url:`${API_BASE_URL}/payments/notify`,
+        //         order_id:paymentId,
+        //         items: items?.description || "Course Enrollment",
+        //         amount: (amount||0).toFixed(2),
+        //         currency:"LKR",
+        //         first_name: currentUser?.firstName || "Student",
+        //         last_name: currentUser?.lastName || "User",
+        //         email: currentUser?.email || "noemail@example.com",
+        //         phone: currentUser?.number || "0771234567",
+        //         address:"EduWings Institute",
+        //         city:"Colombo",
+        //         country:"Sri Lanka",
+        //         delivery_address:"No physical delivery",
+        //         delivery_city:"Colombo",
+        //         delivery_country:"Sri Lanka",
+        //         custom_1: JSON.stringify({
+        //             studentId: enrollmentData.studentId,
+        //             batchId: enrollmentData.batchId || null,
+        //             monthIds: enrollmentData.selectedMonthIds || []
+        //         })
+        //     };
+
+        //     try { payhere.startPayment(payment); }
+        //     catch(err){ console.error(err); Swal.fire('Error','Payment failed.','error'); }
+        //     finally{ document.getElementById('loadingPayment').style.display='none'; }
+        // }
+
+        function initiatePayHerePayment() {
+            if (!enrollmentData || !currentUser) {
+                Swal.fire('Error', 'Enrollment or user information missing.', 'error');
+                return;
+            }
+
+            const paymentData = {
+                amount: enrollmentData.totalAmount || 0,
+                userId: currentUser.id,
+                userEmail: currentUser.email || "noemail@example.com",
+                monthIds: enrollmentData.selectedMonthIds || [],
+                description: `Course Enrollment for ${enrollmentData.batchName || 'Batch'}`
+            };
+
+            // Create payment record first
+            fetch(`${API_BASE_URL}/payments/create`, {
+                method: "POST",
+                headers: { 
+                    "Authorization": `Bearer ${token}`, 
+                    "Content-Type": "application/json" 
+                },
+                body: JSON.stringify(paymentData)
+            })
+            .then(async res => {
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    throw new Error(errorData.error || "Failed to create payment");
+                }
+                return res.json();
+            })
+            .then(payment => {
+                // Start PayHere payment with the created payment ID
+                startPayHerePayment(payment);
+            })
+            .catch(err => {
+                console.error('Payment creation error:', err);
+                Swal.fire('Error', err.message || 'Failed to initiate payment.', 'error');
+            });
+        }
+
+        function startPayHerePayment(payment) {
+            // PayHere payment object
+            const paymentConfig = {
+                sandbox: true, // Set to false in production
+                merchant_id: "1232027", // Use your merchant ID from config
+                return_url: `${API_BASE_URL}/payments/success`,
+                cancel_url: `${API_BASE_URL}/payments/cancel`,
+                notify_url: `${API_BASE_URL}/payments/notify`,
+                order_id: payment.paymentId.toString(),
+                items: payment.description || "Course Enrollment",
+                amount: payment.amount.toFixed(2),
+                currency: "LKR",
+                first_name: currentUser?.firstName || "Student",
+                last_name: currentUser?.lastName || "User",
+                email: currentUser?.email || "noemail@example.com",
+                phone: currentUser?.phone || "0771234567",
+                address: "EduWings Institute",
+                city: "Colombo",
+                country: "Sri Lanka",
+                custom_1: JSON.stringify({
+                    studentId: currentUser.id,
+                    batchId: enrollmentData.batchId,
+                    monthIds: enrollmentData.selectedMonthIds
+                })
+            };
+
+            // Open PayHere payment page
+            payhere.startPayment(paymentConfig);
+        }
+
+        window.logout = function(){
+                localStorage.removeItem("accessToken");
+                localStorage.removeItem("enrollmentData");
+                localStorage.removeItem("__paypal_storage__");
+                localStorage.removeItem("selectedBatchId");
+                localStorage.removeItem("userRole");
+            }
+    </script>
+</body>
+</html>
