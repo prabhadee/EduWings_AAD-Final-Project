@@ -27,6 +27,10 @@ public class Batch {
     @Column(nullable = false)
     private Double monthlyFee;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean isActive = true;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;

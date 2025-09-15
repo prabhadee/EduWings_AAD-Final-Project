@@ -3,6 +3,7 @@ package lk.ijse.gdse72.backend.controller;
 import lk.ijse.gdse72.backend.dto.BatchMonthDTO;
 import lk.ijse.gdse72.backend.service.BatchMonthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -45,4 +46,9 @@ public class BatchMonthController {
         return batchMonthService.getAllMonths();
     }
 
+    @GetMapping("/batch/{batchId}/simple")
+    public ResponseEntity<List<BatchMonthDTO>> getMonthsByBatchSimple(@PathVariable Long batchId) {
+        List<BatchMonthDTO> months = batchMonthService.getMonthsByBatch(batchId);
+        return ResponseEntity.ok(months);
+    }
 }

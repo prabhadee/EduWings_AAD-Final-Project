@@ -27,6 +27,11 @@ public class Course {
     @Column(nullable = false, length = 1000)
     private String description;
 
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean isActive = true;
+
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Instructor> instructors = new ArrayList<>();

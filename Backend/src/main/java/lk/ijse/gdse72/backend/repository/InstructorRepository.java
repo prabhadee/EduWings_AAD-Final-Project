@@ -14,4 +14,6 @@ public interface InstructorRepository extends JpaRepository<Instructor, Long> {
     // Add this if you need to find by email for validation
     Optional<Instructor> findByEmail(String email);
     List<Instructor> findByCourseId(Long courseId);
+
+    List<Instructor> findByIsActiveTrue();
 }

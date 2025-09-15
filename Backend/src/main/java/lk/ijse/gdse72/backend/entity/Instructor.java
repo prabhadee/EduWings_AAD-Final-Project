@@ -31,6 +31,10 @@ public class Instructor {
     @Column
     private String photo; // Store file path or URL
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean isActive = true;
+
     // Many instructors → One course
     @ManyToOne
     @JoinColumn(name = "course_id", nullable = false)

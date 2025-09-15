@@ -6,7 +6,6 @@
     <title>EduWings - Excellence in Education</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <style>
-
         * {
             margin: 0;
             padding: 0;
@@ -1093,10 +1092,6 @@
             .footer-content {
                 grid-template-columns: 1fr;
             }
-
-
-
-            
         }
 
         /* User Profile Dropdown Styles */
@@ -1263,6 +1258,489 @@
             opacity: 1;
             visibility: visible;
         }
+         .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow-heavy);
+            transform: translateY(-50px);
+            transition: transform 0.3s ease;
+        }
+        
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .modal-header h2 {
+            font-size: 1.8rem;
+            color: #1a202c;
+            font-weight: 700;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #64748b;
+            transition: color 0.3s ease;
+        }
+        
+        .close-modal:hover {
+            color: #f56565;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .btn-cancel {
+            padding: 0.8rem 1.5rem;
+            background: #e2e8f0;
+            color: #64748b;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-cancel:hover {
+            background: #cbd5e0;
+        }
+        
+        .btn-save {
+            padding: 0.8rem 1.5rem;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+        
+        /* Floating Chatbot Button */
+        .floating-chatbot {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #4a6fa5 0%, #6e9cd2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
+            box-shadow: 0 10px 30px rgba(74, 111, 165, 0.4);
+            cursor: grab;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            animation: pulse 2s infinite;
+            user-select: none;
+        }
+
+        .floating-chatbot:active {
+            cursor: grabbing;
+            transform: scale(1.1);
+        }
+
+        .floating-chatbot:hover {
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 15px 40px rgba(74, 111, 165, 0.6);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+            animation: bounce 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(74, 111, 165, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 15px rgba(74, 111, 165, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(74, 111, 165, 0);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        .chatbot-tooltip {
+            position: absolute;
+            bottom: 90px;
+            right: 10px;
+            background: white;
+            padding: 12px 18px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            font-size: 14px;
+            color: #4a5568;
+            width: 200px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .chatbot-tooltip:after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            right: 20px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid white;
+        }
+
+        .floating-chatbot:hover .chatbot-tooltip {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .floating-chatbot {
+                bottom: 20px;
+                right: 20px;
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
+            }
+            
+            .notification-badge {
+                width: 22px;
+                height: 22px;
+                font-size: 11px;
+            }
+        }
+/* Mobile Menu Styles */
+@media (max-width: 768px) {
+    .nav-menu {
+        display: none;
+        position: fixed;
+        top: 80px;
+        left: 0;
+        width: 100%;
+        height: calc(100vh - 80px);
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        flex-direction: column;
+        padding: 2rem;
+        z-index: 999;
+        overflow-y: auto;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-in-out;
+    }
+    
+    .nav-menu.active {
+        display: flex;
+        transform: translateX(0);
+    }
+    
+    .nav-menu li {
+        margin: 1rem 0;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.3s ease;
+    }
+    
+    .nav-menu.active li {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    .nav-menu.active li:nth-child(1) { transition-delay: 0.1s; }
+    .nav-menu.active li:nth-child(2) { transition-delay: 0.15s; }
+    .nav-menu.active li:nth-child(3) { transition-delay: 0.2s; }
+    .nav-menu.active li:nth-child(4) { transition-delay: 0.25s; }
+    .nav-menu.active li:nth-child(5) { transition-delay: 0.3s; }
+    .nav-menu.active li:nth-child(6) { transition-delay: 0.35s; }
+    
+    .nav-menu a {
+        font-size: 1.2rem;
+        padding: 1rem 0;
+        display: block;
+        text-align: center;
+        border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+    }
+    
+    .nav-menu a::before {
+        display: none;
+    }
+    
+    .nav-menu a:hover {
+        transform: translateX(10px);
+    }
+    
+    .mobile-menu {
+        display: flex !important;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 40px;
+        height: 40px;
+        background: var(--primary-gradient);
+        border-radius: 8px;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .mobile-menu:hover {
+        transform: scale(1.1);
+    }
+    
+    .mobile-menu i {
+        font-size: 1.5rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .mobile-menu.active i {
+        transform: rotate(180deg);
+    }
+    
+    /* Adjust navbar for mobile */
+    .navbar {
+        padding: 1rem;
+    }
+    
+    .nav-container {
+        padding: 0 1rem;
+    }
+    
+    .logo {
+        font-size: 1.5rem;
+    }
+    
+    /* Adjust auth buttons for mobile */
+    .auth-buttons {
+        gap: 0.5rem;
+    }
+    
+    .btn {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* Smaller mobile devices */
+@media (max-width: 480px) {
+    .nav-menu {
+        top: 70px;
+        height: calc(100vh - 70px);
+        padding: 1.5rem;
+    }
+    
+    .nav-menu a {
+        font-size: 1.1rem;
+        padding: 0.8rem 0;
+    }
+    
+    .mobile-menu {
+        width: 35px;
+        height: 35px;
+    }
+    
+    .mobile-menu i {
+        font-size: 1.3rem;
+    }
+    
+    .logo {
+        font-size: 1.3rem;
+    }
+    
+    .auth-buttons {
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+    
+    .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.75rem;
+    }
+}
+
+/* Smooth transitions for mobile menu */
+.nav-menu {
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Overlay for mobile menu */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    z-index: 998;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Enhanced mobile menu animation */
+@keyframes slideInFromLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.nav-menu.active {
+    animation: slideInFromLeft 0.4s ease-out;
+}
+
+.nav-menu.active li {
+    animation: fadeIn 0.4s ease-out forwards;
+}
+
+/* Staggered animation for menu items */
+.nav-menu.active li:nth-child(1) { animation-delay: 0.1s; }
+.nav-menu.active li:nth-child(2) { animation-delay: 0.15s; }
+.nav-menu.active li:nth-child(3) { animation-delay: 0.2s; }
+.nav-menu.active li:nth-child(4) { animation-delay: 0.25s; }
+.nav-menu.active li:nth-child(5) { animation-delay: 0.3s; }
+.nav-menu.active li:nth-child(6) { animation-delay: 0.35s; }
+
+/* Mobile menu item hover effects */
+.nav-menu a {
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.nav-menu a:hover {
+    color: #667eea;
+    transform: translateX(10px);
+}
+
+.nav-menu a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--primary-gradient);
+    transition: width 0.3s ease;
+}
+
+.nav-menu a:hover::after {
+    width: 100%;
+}
     </style>
 </head>
 <body>
@@ -1281,7 +1759,7 @@
     <nav class="navbar" id="navbar">
         <div class="nav-container">
             <div class="logo">EduWings</div>
-            <ul class="nav-menu">
+            <ul class="nav-menu" id="navMenu">
                 <li><a href="/index.html">Home</a></li>
                 <li><a href="/pages//student/courses.html">Courses</a></li>
                 <li><a href="#about">About</a></li>
@@ -1289,6 +1767,7 @@
                 <li><a href="#mycourses">My Courses</a></li>
                 <li><a href="/pages/student/contact.html">Contact</a></li>
             </ul>
+            
             <div class="auth-buttons">
                 <!-- User profile section -->
                 <div class="user-profile">
@@ -1335,7 +1814,7 @@
                             </div>
                         </div>
                         <div class="profile-actions">
-                            <button class="profile-btn edit">
+                            <button class="profile-btn edit" id="editProfileBtn">
                                 <i class="fas fa-edit"></i> Edit Profile
                             </button>
                             <a href="/welcome.html" class="profile-btn logout">
@@ -1346,12 +1825,42 @@
                 </div>
                 <!-- End user profile section -->
             </div>
+            
             <div class="mobile-menu" id="mobileMenu">
                 <i class="fas fa-bars"></i>
             </div>
         </div>
     </nav>
-<div class="overlay" id="overlay"></div>
+    
+    <div class="modal" id="editProfileModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Profile</h2>
+                <button class="close-modal" id="closeModal">&times;</button>
+            </div>
+            <form id="profileForm">
+                <div class="form-group">
+                    <label for="editUsername">Username</label>
+                    <input type="text" id="editUsername" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="editEmail">Email</label>
+                    <input type="email" id="editEmail" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="editPhone">Phone Number</label>
+                    <input type="tel" id="editPhone" class="form-control" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" id="cancelEdit">Cancel</button>
+                    <button type="submit" class="btn-save">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="overlay" id="overlay"></div>
+
     <!-- Hero Section -->
     <section class="hero" id="home">
         <div class="particles">
@@ -1618,7 +2127,7 @@
                     <h3 data-target="250">0</h3>
                     <p>Courses Available</p>
                 </div>
-                <div class="stats-item">
+                <div class="stats-item {
                     <h3 data-target="98">0</h3>
                     <p>Success Rate</p>
                 </div>
@@ -1686,27 +2195,48 @@
     <button class="back-to-top" id="backToTop">
         <i class="fas fa-arrow-up"></i>
     </button>
-
+    
+    <!-- Floating Chatbot Button -->
+    <a href="chatAssistant.html" class="floating-chatbot" id="chatbotButton">
+        <i class="fas fa-comment-alt"></i>
+        <div class="notification-badge">3</div>
+        <div class="chatbot-tooltip">Drag me anywhere! Ask me about courses, instructors, and more!</div>
+    </a>
+    
     <script>
+        // Constants
+        const API_BASE_URL = 'http://localhost:8080/api';
 
+        // Get token from storage with validation
+        function getAuthToken() {
+            let token = localStorage.getItem('accessToken') || getCookie('authToken');
+            
+            // Validate token format
+            if (token && isValidJwt(token)) {
+                return token;
+            } else {
+                console.warn('Invalid or missing JWT token');
+                // Clear invalid token
+                localStorage.removeItem('accessToken');
+                document.cookie = 'authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                return null;
+            }
+        }
 
-// User data from the provided MySQL table
-        const users = [
-            { id: 1, email: "preba@gmail.com", number: "07745332689", password: "$2a5186dmv2Nd.5fphF0S3nE1k9jK.L62rbXUWfaXAE7y3Db86GhZn3H3QK", role: "USER", username: "preba" },
-            { id: 2, email: "kausha1yadllnl.av2093gqmail.com", number: "0777381728", password: "$2a5195MmRmOYpaarBml.2C6QqL.30tfTfxnHpq3OWH62JxOkCYZgDPuq", role: "USER", username: "bilai kausha1ya" },
-            { id: 3, email: "nisa1gqmail.com", number: "0775326358", password: "$2a5163505Y9mkKeCTTe07zGDYUuDTYYAaykyPdyXYZHMOVAWyTC67iNy", role: "USER", username: "Nisa1_Sananjith" },
-            { id: 4, email: "anjanaegmail.com", number: "0775326456", password: "$2a516390DraS4.XrQhzHldFkiAp.F60712RyYJhfOM8w8pjp6ivKtn1kx66", role: "USER", username: "Anjana Heshan" },
-            { id: 5, email: "refbmigqmail.com", number: "0777381728", password: "$2a5163527R23YDLKEMM2BF0NPWNNE3231t033jAnxlEAmErQQyN/mNE1dUMK", role: "USER", username: "Sainas Rechni" },
-            { id: 6, email: "jongqmail.com", number: "0771079256", password: "$2a51635MR27_gkULuze73M0c0E0j5eHY2FnuED8sefb9bE0g/83acBr6ebHu.e", role: "USER", username: "John Doe" },
-            { id: 7, email: "sachia1gqmail.com", number: "0114172857", password: "$2a51651Kq0FTf/0wdf/0wdc5cEhsswddGFMhE5FW2VbL48b11lRuCEanPMuq", role: "USER", username: "sachiai imbulagoda" },
-            { id: 8, email: "tharusha1gqmail.com", number: "0775326358", password: "$2a51635E/0mLUUsn.6iVnqtyjlsL.CnyPyGT1IhGIsRh7thltzyqsf2MMyFq", role: "USER", username: "Tharusha Sandarunan" },
-            { id: 9, email: "chathuraagmail.com", number: "0114056256", password: "$2a51631U5jupn1nx0gr1txTliin.e.LFV2vfsTVn9unr2s8S3ygciyTLkRN8K", role: "USER", username: "Chathura Lakshan" },
-            { id: 10, email: "indumara1gqmail.com", number: "0775132689", password: "$2a51632Qur7az4JokzsFTTGy53yuK8ow03vTIk5Mg3CyDCjuVL7KfxxXSm", role: "ADMIN", username: "indumara" }
-        ];
+        // Basic JWT validation
+        function isValidJwt(token) {
+            if (!token) return false;
+            const parts = token.split('.');
+            return parts.length === 3;
+        }
 
-        // Simulate logged in user (in a real app, this would come from your authentication system)
-        // For demonstration, we'll use the first user
-        const currentUser = users[0]; // Change index to test different users
+        // Utility function to get cookie value
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
 
         // DOM elements
         const userAvatar = document.getElementById('userAvatar');
@@ -1718,25 +2248,640 @@
         const profilePhone = document.getElementById('profilePhone');
         const profileAccountType = document.getElementById('profileAccountType');
         const overlay = document.getElementById('overlay');
+        const editProfileModal = document.getElementById('editProfileModal');
+        const profileForm = document.getElementById('profileForm');
+        const closeModal = document.getElementById('closeModal');
+        const cancelEdit = document.getElementById('cancelEdit');
+        const editProfileBtn = document.getElementById('editProfileBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const navMenu = document.getElementById('navMenu');
+        const backToTop = document.getElementById('backToTop');
 
-        // Populate user data
-        function populateUserData() {
-            const firstLetter = currentUser.username.charAt(0).toUpperCase();
+        // Current user data
+        let currentUser = null;
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeApp();
+        });
+
+        // Initialize the application
+        function initializeApp() {
+            // Load the current user from the API
+            loadCurrentUser();
+            setupEventListeners();
+            
+            // Set up other functionality
+            setupGeneralFunctionality();
+            
+            // Set up mobile menu
+            setupMobileMenu();
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            // Profile dropdown functionality
+            if (userAvatar) {
+                userAvatar.addEventListener('click', toggleProfileDropdown);
+            }
+            
+            if (overlay) {
+                overlay.addEventListener('click', closeDropdown);
+            }
+            
+            document.addEventListener('click', closeDropdown);
+            
+            if (profileDropdown) {
+                profileDropdown.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                });
+            }
+            
+            // Edit profile functionality
+            if (editProfileBtn) {
+                editProfileBtn.addEventListener('click', openEditModal);
+            }
+            
+            if (closeModal) {
+                closeModal.addEventListener('click', closeEditModal);
+            }
+            
+            if (cancelEdit) {
+                cancelEdit.addEventListener('click', closeEditModal);
+            }
+            
+            if (profileForm) {
+                profileForm.addEventListener('submit', handleProfileUpdate);
+            }
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target === editProfileModal) {
+                    closeEditModal();
+                }
+            });
+        }
+
+        // Set up mobile menu functionality
+        function setupMobileMenu() {
+            if (!mobileMenu || !navMenu) return;
+            
+            mobileMenu.addEventListener('click', () => {
+                navMenu.classList.toggle('active');
+                mobileMenu.classList.toggle('active');
+                overlay.classList.toggle('active');
+                
+                // Toggle the menu icon between bars and times
+                const menuIcon = mobileMenu.querySelector('i');
+                if (menuIcon) {
+                    if (navMenu.classList.contains('active')) {
+                        menuIcon.classList.remove('fa-bars');
+                        menuIcon.classList.add('fa-times');
+                    } else {
+                        menuIcon.classList.remove('fa-times');
+                        menuIcon.classList.add('fa-bars');
+                    }
+                }
+                
+                // Prevent body scrolling when menu is open
+                document.body.style.overflow = navMenu.classList.contains('active') ? 'hidden' : '';
+            });
+            
+            // Close menu when clicking on links
+            const navLinks = navMenu.querySelectorAll('a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    navMenu.classList.remove('active');
+                    mobileMenu.classList.remove('active');
+                    overlay.classList.remove('active');
+                    
+                    // Reset icon
+                    const menuIcon = mobileMenu.querySelector('i');
+                    if (menuIcon) {
+                        menuIcon.classList.remove('fa-times');
+                        menuIcon.classList.add('fa-bars');
+                    }
+                    
+                    document.body.style.overflow = '';
+                });
+            });
+            
+            // Close menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (navMenu.classList.contains('active') && 
+                    !navMenu.contains(e.target) && 
+                    e.target !== mobileMenu &&
+                    !mobileMenu.contains(e.target)) {
+                    navMenu.classList.remove('active');
+                    mobileMenu.classList.remove('active');
+                    overlay.classList.remove('active');
+                    
+                    // Reset icon
+                    const menuIcon = mobileMenu.querySelector('i');
+                    if (menuIcon) {
+                        menuIcon.classList.remove('fa-times');
+                        menuIcon.classList.add('fa-bars');
+                    }
+                    
+                    document.body.style.overflow = '';
+                }
+            });
+            
+            // Close menu on escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && navMenu.classList.contains('active')) {
+                    navMenu.classList.remove('active');
+                    mobileMenu.classList.remove('active');
+                    overlay.classList.remove('active');
+                    
+                    // Reset icon
+                    const menuIcon = mobileMenu.querySelector('i');
+                    if (menuIcon) {
+                        menuIcon.classList.remove('fa-times');
+                        menuIcon.classList.add('fa-bars');
+                    }
+                    
+                    document.body.style.overflow = '';
+                }
+            });
+        }
+
+        // Set up general functionality
+        function setupGeneralFunctionality() {
+            // Loading screen
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    const loader = document.getElementById('loader');
+                    if (loader) loader.classList.add('hidden');
+                }, 1500);
+            });
+
+            // Scroll progress bar
+            window.addEventListener('scroll', () => {
+                const scrollProgress = document.getElementById('scrollProgress');
+                if (scrollProgress) {
+                    const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+                    const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                    const progress = (scrollTop / scrollHeight) * 100;
+                    scrollProgress.style.width = progress + '%';
+                }
+            });
+
+            // Enhanced navbar scroll effect
+            let lastScrollTop = 0;
+            window.addEventListener('scroll', () => {
+                const navbar = document.getElementById('navbar');
+                if (navbar) {
+                    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                    
+                    if (scrollTop > 100) {
+                        navbar.classList.add('scrolled');
+                    } else {
+                        navbar.classList.remove('scrolled');
+                    }
+
+                    // Hide navbar on scroll down, show on scroll up
+                    if (scrollTop > lastScrollTop && scrollTop > 200) {
+                        navbar.style.transform = 'translateY(-100%)';
+                    } else {
+                        navbar.style.transform = 'translateY(0)';
+                    }
+                    lastScrollTop = scrollTop;
+                }
+            });
+
+            // Back to top button
+            if (backToTop) {
+                window.addEventListener('scroll', () => {
+                    if (window.pageYOffset > 300) {
+                        backToTop.classList.add('visible');
+                    } else {
+                        backToTop.classList.remove('visible');
+                    }
+                });
+
+                backToTop.addEventListener('click', () => {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                });
+            }
+
+            // Enhanced smooth scrolling
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        const headerOffset = 100;
+                        const elementPosition = target.offsetTop;
+                        const offsetPosition = elementPosition - headerOffset;
+
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // Counter animation for stats
+            const animateCounters = () => {
+                const counters = document.querySelectorAll('[data-target]');
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const counter = entry.target;
+                            const target = parseInt(counter.getAttribute('data-target'));
+                            let current = 0;
+                            const increment = target / 100;
+                            const suffix = counter.textContent.replace(/[\d,]/g, '') || '';
+
+                            const updateCounter = () => {
+                                current += increment;
+                                if (current >= target) {
+                                    counter.textContent = target.toLocaleString() + (suffix.includes('%') ? '%' : (target >= 1000 ? '+' : ''));
+                                } else {
+                                    counter.textContent = Math.floor(current).toLocaleString() + (target >= 1000 ? '+' : '');
+                                    requestAnimationFrame(updateCounter);
+                                }
+                            };
+
+                            updateCounter();
+                            observer.unobserve(counter);
+                        }
+                    });
+                }, { threshold: 0.7 });
+
+                counters.forEach(counter => observer.observe(counter));
+            };
+
+            // Initialize counter animation
+            animateCounters();
+
+            // Intersection Observer for fade-in animations
+            const observeElements = () => {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.style.animationPlayState = 'running';
+                        }
+                    });
+                }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+                document.querySelectorAll('.fade-in-up, .scale-in').forEach(el => {
+                    el.style.animationPlayState = 'paused';
+                    observer.observe(el);
+                });
+            };
+
+            // Initialize animations
+            observeElements();
+
+            // Search functionality
+            const searchBar = document.querySelector('.search-bar');
+            const searchBtn = document.querySelector('.search-btn');
+            
+            if (searchBtn && searchBar) {
+                searchBtn.addEventListener('click', () => {
+                    if (searchBar.value.trim() !== '') {
+                        alert(`Searching for: ${searchBar.value}`);
+                        searchBar.value = '';
+                    }
+                });
+                
+                searchBar.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && searchBar.value.trim() !== '') {
+                        alert(`Searching for: ${searchBar.value}`);
+                        searchBar.value = '';
+                    }
+                });
+            }
+
+            // Particle animation for hero section
+            const createParticles = () => {
+                const particlesContainer = document.querySelector('.particles');
+                if (!particlesContainer) return;
+                
+                for (let i = 0; i < 20; i++) {
+                    const particle = document.createElement('div');
+                    particle.classList.add('particle');
+                    particle.style.left = `${Math.random() * 100}%`;
+                    particle.style.top = `${Math.random() * 100}%`;
+                    particle.style.width = `${Math.random() * 10 + 2}px`;
+                    particle.style.height = particle.style.width;
+                    particle.style.animationDuration = `${Math.random() * 10 + 5}s`;
+                    particlesContainer.appendChild(particle);
+                }
+            };
+
+            createParticles();
+            
+            // Setup chatbot functionality
+            setupChatbot();
+        }
+
+        // Setup chatbot functionality
+        function setupChatbot() {
+            const chatbot = document.getElementById('chatbotButton');
+            if (!chatbot) return;
+            
+            let isDragging = false;
+            let currentX;
+            let currentY;
+            let initialX;
+            let initialY;
+            let xOffset = 0;
+            let yOffset = 0;
+            
+            // Reset position to default if it's causing issues
+            localStorage.removeItem('chatbotPosition');
+            
+            // Load saved position if available
+            const savedPosition = localStorage.getItem('chatbotPosition');
+            if (savedPosition) {
+                try {
+                    const position = JSON.parse(savedPosition);
+                    // Make sure the position is within viewport
+                    if (position.x !== undefined && position.y !== undefined) {
+                        chatbot.style.right = 'auto';
+                        chatbot.style.bottom = 'auto';
+                        chatbot.style.left = Math.min(position.x, window.innerWidth - 70) + 'px';
+                        chatbot.style.top = Math.min(position.y, window.innerHeight - 70) + 'px';
+                        xOffset = position.x;
+                        yOffset = position.y;
+                    }
+                } catch (e) {
+                    console.error('Error loading chatbot position:', e);
+                    // Reset to default position if there's an error
+                    resetChatbotPosition();
+                }
+            } else {
+                // Set default position
+                resetChatbotPosition();
+            }
+            
+            function resetChatbotPosition() {
+                chatbot.style.right = '30px';
+                chatbot.style.bottom = '30px';
+                chatbot.style.left = 'auto';
+                chatbot.style.top = 'auto';
+                xOffset = 0;
+                yOffset = 0;
+            }
+            
+            chatbot.addEventListener('mousedown', dragStart);
+            chatbot.addEventListener('touchstart', dragStart);
+            
+            document.addEventListener('mouseup', dragEnd);
+            document.addEventListener('touchend', dragEnd);
+            
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('touchmove', drag);
+            
+            function dragStart(e) {
+                if (e.type === "touchstart") {
+                    initialX = e.touches[0].clientX - xOffset;
+                    initialY = e.touches[0].clientY - yOffset;
+                } else {
+                    initialX = e.clientX - xOffset;
+                    initialY = e.clientY - yOffset;
+                }
+                
+                if (e.target === chatbot || e.target.parentNode === chatbot) {
+                    isDragging = true;
+                    
+                    // Remove pulse animation while dragging
+                    chatbot.style.animation = 'none';
+                    
+                    // Switch to absolute positioning for dragging
+                    const rect = chatbot.getBoundingClientRect();
+                    chatbot.style.position = 'fixed';
+                    chatbot.style.right = 'auto';
+                    chatbot.style.bottom = 'auto';
+                    chatbot.style.left = rect.left + 'px';
+                    chatbot.style.top = rect.top + 'px';
+                }
+            }
+            
+            function dragEnd(e) {
+                if (!isDragging) return;
+                
+                initialX = currentX;
+                initialY = currentY;
+                isDragging = false;
+                
+                // Save position to localStorage
+                localStorage.setItem('chatbotPosition', JSON.stringify({
+                    x: xOffset,
+                    y: yOffset
+                }));
+                
+                // Restore pulse animation
+                setTimeout(() => {
+                    chatbot.style.animation = 'pulse 2s infinite';
+                }, 100);
+            }
+            
+            function drag(e) {
+                if (isDragging) {
+                    e.preventDefault();
+                    
+                    if (e.type === "touchmove") {
+                        currentX = e.touches[0].clientX - initialX;
+                        currentY = e.touches[0].clientY - initialY;
+                    } else {
+                        currentX = e.clientX - initialX;
+                        currentY = e.clientY - initialY;
+                    }
+                    
+                    // Keep within viewport boundaries
+                    currentX = Math.max(0, Math.min(currentX, window.innerWidth - chatbot.offsetWidth));
+                    currentY = Math.max(0, Math.min(currentY, window.innerHeight - chatbot.offsetHeight));
+                    
+                    xOffset = currentX;
+                    yOffset = currentY;
+                    
+                    setTranslate(currentX, currentY, chatbot);
+                }
+            }
+            
+            function setTranslate(xPos, yPos, el) {
+                el.style.transform = "translate3d(" + xPos + "px, " + yPos + "px, 0)";
+            }
+            
+            // Add click effect
+            chatbot.addEventListener('click', function(e) {
+                // Only navigate if it wasn't a drag operation
+                if (!isDragging) {
+                    e.preventDefault();
+                    
+                    // Create ripple effect
+                    const ripple = document.createElement('div');
+                    ripple.style.position = 'absolute';
+                    ripple.style.borderRadius = '50%';
+                    ripple.style.backgroundColor = 'rgba(255, 255, 255, 0.4)';
+                    ripple.style.width = '0px';
+                    ripple.style.height = '0px';
+                    ripple.style.top = '50%';
+                    ripple.style.left = '50%';
+                    ripple.style.transform = 'translate(-50%, -50%)';
+                    ripple.style.transition = 'all 0.5s ease';
+                    
+                    this.appendChild(ripple);
+                    
+                    // Animate ripple
+                    setTimeout(() => {
+                        ripple.style.width = '100px';
+                        ripple.style.height = '100px';
+                        ripple.style.opacity = '0';
+                    }, 10);
+                    
+                    // Navigate after animation
+                    setTimeout(() => {
+                        window.location.href = 'chatAssistant.html';
+                    }, 500);
+                }
+            });
+            
+            // Make notification badge count down from 3 to 0
+            const badge = document.querySelector('.notification-badge');
+            if (badge) {
+                let count = 3;
+                
+                setInterval(() => {
+                    if (count > 0) {
+                        count--;
+                        badge.textContent = count;
+                        
+                        if (count === 0) {
+                            badge.style.display = 'none';
+                        }
+                    }
+                }, 5000);
+            }
+        }
+
+        // Load current user data from API
+        async function loadCurrentUser() {
+            const USER_TOKEN = getAuthToken();
+            
+            if (!USER_TOKEN) {
+                console.log('No valid token found, using mock data');
+                showPlaceholderUserData();
+                showDemoModeNotification();
+                return;
+            }
+
+            try {
+                console.log('Attempting to fetch current user...');
+                const response = await fetch(`${API_BASE_URL}/user/current`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${USER_TOKEN}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                console.log('Response status:', response.status);
+                
+                if (response.status === 401) {
+                    // Token expired or invalid
+                    localStorage.removeItem('accessToken');
+                    document.cookie = 'authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                    showPlaceholderUserData();
+                    showError('Session expired. Please login again.');
+                    return;
+                }
+                
+                if (response.status === 500) {
+                    const errorData = await response.text();
+                    console.error('Server error details:', errorData);
+                    throw new Error(`Server error: ${errorData}`);
+                }
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                currentUser = await response.json();
+                console.log('User data received:', currentUser);
+                populateUserData(currentUser);
+                
+            } catch (error) {
+                console.error('Error fetching current user:', error);
+                
+                // Check if it's a connection error vs authentication error
+                if (error.message.includes('Failed to fetch') || error.message.includes('Connection refused')) {
+                    showPlaceholderUserData();
+                    showDemoModeNotification();
+                } else {
+                    showError('Failed to load user profile. Please try again.');
+                }
+            }
+        }
+
+        // Show placeholder data when API fails
+        function showPlaceholderUserData() {
+            const firstLetter = 'U';
+            if (userAvatar) userAvatar.textContent = firstLetter;
+            if (profileAvatar) profileAvatar.textContent = firstLetter;
+            
+            if (profileUsername) profileUsername.textContent = 'Guest User';
+            if (profileRole) profileRole.textContent = 'USER Account';
+            if (profileEmail) profileEmail.textContent = 'user@example.com';
+            if (profilePhone) profilePhone.textContent = 'Not provided';
+            if (profileAccountType) profileAccountType.textContent = 'USER';
+        }
+
+        // Show notification that demo data is being used
+        function showDemoModeNotification() {
+            // Create a subtle notification
+            const notification = document.createElement('div');
+            notification.style.position = 'fixed';
+            notification.style.top = '20px';
+            notification.style.right = '20px';
+            notification.style.background = 'rgba(255, 193, 7, 0.9)';
+            notification.style.color = '#000';
+            notification.style.padding = '10px 15px';
+            notification.style.borderRadius = '5px';
+            notification.style.zIndex = '10000';
+            notification.style.fontSize = '14px';
+            notification.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+            notification.innerHTML = '⚠️ Using demo data - Backend not connected';
+            
+            document.body.appendChild(notification);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification);
+                }
+            }, 5000);
+        }
+
+        // Populate user data in the UI
+        function populateUserData(user) {
+            if (!user) return;
             
             // Set avatar initials
-            userAvatar.textContent = firstLetter;
-            profileAvatar.textContent = firstLetter;
+            const firstLetter = user.username ? user.username.charAt(0).toUpperCase() : 'U';
+            if (userAvatar) userAvatar.textContent = firstLetter;
+            if (profileAvatar) profileAvatar.textContent = firstLetter;
             
             // Set user details
-            profileUsername.textContent = currentUser.username;
-            profileRole.textContent = `${currentUser.role} Account`;
-            profileEmail.textContent = currentUser.email;
-            profilePhone.textContent = currentUser.number;
-            profileAccountType.textContent = currentUser.role;
+            if (profileUsername) profileUsername.textContent = user.username || 'N/A';
+            if (profileRole) profileRole.textContent = `${user.role || 'USER'} Account`;
+            if (profileEmail) profileEmail.textContent = user.email || 'N/A';
+            if (profilePhone) profilePhone.textContent = user.number || 'N/A';
+            if (profileAccountType) profileAccountType.textContent = user.role || 'USER';
         }
 
         // Toggle profile dropdown
         function toggleProfileDropdown() {
+            if (!profileDropdown || !overlay) return;
+            
             profileDropdown.classList.toggle('active');
             overlay.classList.toggle('active');
             
@@ -1746,6 +2891,8 @@
 
         // Close dropdown when clicking outside
         function closeDropdown(e) {
+            if (!profileDropdown || !userAvatar || !overlay) return;
+            
             if (!profileDropdown.contains(e.target) && e.target !== userAvatar) {
                 profileDropdown.classList.remove('active');
                 overlay.classList.remove('active');
@@ -1753,194 +2900,203 @@
             }
         }
 
-        // Initialize user profile
-        document.addEventListener('DOMContentLoaded', () => {
-            populateUserData();
+        // Open edit modal with user data
+        function openEditModal() {
+            if (!currentUser || !editProfileModal) return;
             
-            // Event listeners
-            userAvatar.addEventListener('click', toggleProfileDropdown);
-            overlay.addEventListener('click', closeDropdown);
-            document.addEventListener('click', closeDropdown);
+            document.getElementById('editUsername').value = currentUser.username || '';
+            document.getElementById('editEmail').value = currentUser.email || '';
+            document.getElementById('editPhone').value = currentUser.number || '';
             
-            // Prevent dropdown close when clicking inside it
-            profileDropdown.addEventListener('click', (e) => {
-                e.stopPropagation();
-            });
-        });
+            editProfileModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
 
-        
-        // Enhanced JavaScript functionality
-        
-        // Loading screen
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                document.getElementById('loader').classList.add('hidden');
-            }, 1500);
-        });
-
-        // Scroll progress bar
-        window.addEventListener('scroll', () => {
-            const scrollProgress = document.getElementById('scrollProgress');
-            const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-            const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-            const progress = (scrollTop / scrollHeight) * 100;
-            scrollProgress.style.width = progress + '%';
-        });
-
-        // Enhanced navbar scroll effect
-        let lastScrollTop = 0;
-        window.addEventListener('scroll', () => {
-            const navbar = document.getElementById('navbar');
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        // Close edit modal
+        function closeEditModal() {
+            if (!editProfileModal) return;
             
-            if (scrollTop > 100) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
+            editProfileModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
 
-            // Hide navbar on scroll down, show on scroll up
-            if (scrollTop > lastScrollTop && scrollTop > 200) {
-                navbar.style.transform = 'translateY(-100%)';
-            } else {
-                navbar.style.transform = 'translateY(0)';
-            }
-            lastScrollTop = scrollTop;
-        });
-
-        // Back to top button
-        const backToTop = document.getElementById('backToTop');
-        window.addEventListener('scroll', () => {
-            if (window.pageYOffset > 300) {
-                backToTop.classList.add('visible');
-            } else {
-                backToTop.classList.remove('visible');
-            }
-        });
-
-        backToTop.addEventListener('click', () => {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        });
-
-        // Enhanced smooth scrolling
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    const headerOffset = 100;
-                    const elementPosition = target.offsetTop;
-                    const offsetPosition = elementPosition - headerOffset;
-
-                    window.scrollTo({
-                        top: offsetPosition,
-                        behavior: 'smooth'
-                    });
+        // Handle profile form submission
+        async function handleProfileUpdate(e) {
+            e.preventDefault();
+            
+            if (!currentUser) return;
+            
+            const USER_TOKEN = getAuthToken();
+            const updatedUser = {
+                username: document.getElementById('editUsername').value,
+                email: document.getElementById('editEmail').value,
+                number: document.getElementById('editPhone').value
+            };
+            
+            try {
+                // If no valid token, just update locally (demo mode)
+                if (!USER_TOKEN) {
+                    currentUser = { ...currentUser, ...updatedUser };
+                    populateUserData(currentUser);
+                    closeEditModal();
+                    showSuccess('Profile updated successfully! (Demo mode)');
+                    return;
                 }
-            });
-        });
-
-        // Counter animation for stats
-        const animateCounters = () => {
-            const counters = document.querySelectorAll('[data-target]');
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const counter = entry.target;
-                        const target = parseInt(counter.getAttribute('data-target'));
-                        let current = 0;
-                        const increment = target / 100;
-                        const suffix = counter.textContent.replace(/[\d,]/g, '') || '';
-
-                        const updateCounter = () => {
-                            current += increment;
-                            if (current >= target) {
-                                counter.textContent = target.toLocaleString() + (suffix.includes('%') ? '%' : (target >= 1000 ? '+' : ''));
-                            } else {
-                                counter.textContent = Math.floor(current).toLocaleString() + (target >= 1000 ? '+' : '');
-                                requestAnimationFrame(updateCounter);
-                            }
-                        };
-
-                        updateCounter();
-                        observer.unobserve(counter);
-                    }
+                
+                // Log the data being sent for debugging
+                console.log('Updating user with data:', updatedUser);
+                console.log('User ID:', currentUser.id);
+                
+                const response = await fetch(`${API_BASE_URL}/user/${currentUser.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${USER_TOKEN}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updatedUser)
                 });
-            }, { threshold: 0.7 });
+                
+                console.log('Update response status:', response.status);
+                
+                if (response.status === 401) {
+                    localStorage.removeItem('accessToken');
+                    document.cookie = 'authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                    throw new Error('Session expired. Please login again.');
+                }
+                
+                if (response.status === 403) {
+                    // Try an alternative endpoint or method
+                    console.log('403 Forbidden - trying alternative approach');
+                    await tryAlternativeUpdate(USER_TOKEN, updatedUser);
+                    return;
+                }
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Server error response:', errorText);
+                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                }
+                
+                const savedUser = await response.json();
+                currentUser = savedUser;
+                populateUserData(currentUser);
+                
+                closeEditModal();
+                showSuccess('Profile updated successfully!');
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                showError(error.message || 'Failed to update profile. Please try again.');
+            }
+        }
 
-            counters.forEach(counter => observer.observe(counter));
-        };
-
-        // Initialize counter animation
-        animateCounters();
-
-        // Intersection Observer for fade-in animations
-        const observeElements = () => {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.animationPlayState = 'running';
-                    }
+        // Alternative update method for when the main endpoint fails
+        async function tryAlternativeUpdate(token, updatedUser) {
+            try {
+                // Try updating without the ID in the URL (some APIs use different patterns)
+                const response = await fetch(`${API_BASE_URL}/user/update`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updatedUser)
                 });
-            }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
-
-            document.querySelectorAll('.fade-in-up, .scale-in').forEach(el => {
-                el.style.animationPlayState = 'paused';
-                observer.observe(el);
-            });
-        };
-
-        // Initialize animations
-        observeElements();
-
-        // Mobile menu toggle
-        const mobileMenu = document.getElementById('mobileMenu');
-        const navMenu = document.querySelector('.nav-menu');
-        
-        mobileMenu.addEventListener('click', () => {
-            navMenu.classList.toggle('active');
-            mobileMenu.classList.toggle('active');
-        });
-
-        // Search functionality
-        const searchBar = document.querySelector('.search-bar');
-        const searchBtn = document.querySelector('.search-btn');
-        
-        searchBtn.addEventListener('click', () => {
-            if (searchBar.value.trim() !== '') {
-                alert(`Searching for: ${searchBar.value}`);
-                searchBar.value = '';
+                
+                if (response.ok) {
+                    const savedUser = await response.json();
+                    currentUser = savedUser;
+                    populateUserData(currentUser);
+                    closeEditModal();
+                    showSuccess('Profile updated successfully!');
+                    return;
+                }
+                
+                // If that also fails, try a POST request instead
+                const postResponse = await fetch(`${API_BASE_URL}/user/profile`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updatedUser)
+                });
+                
+                if (postResponse.ok) {
+                    const savedUser = await postResponse.json();
+                    currentUser = savedUser;
+                    populateUserData(currentUser);
+                    closeEditModal();
+                    showSuccess('Profile updated successfully!');
+                    return;
+                }
+                
+                // If all API attempts fail, update locally
+                console.log('All API update attempts failed, updating locally');
+                currentUser = { ...currentUser, ...updatedUser };
+                populateUserData(currentUser);
+                closeEditModal();
+                showSuccess('Profile updated locally! (Server update failed)');
+                
+            } catch (error) {
+                console.error('Alternative update failed:', error);
+                // Fallback to local update
+                currentUser = { ...currentUser, ...updatedUser };
+                populateUserData(currentUser);
+                closeEditModal();
+                showSuccess('Profile updated locally! (Server connection failed)');
             }
-        });
-        
-        searchBar.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && searchBar.value.trim() !== '') {
-                alert(`Searching for: ${searchBar.value}`);
-                searchBar.value = '';
-            }
-        });
+        }
 
-        // Particle animation for hero section
-        const createParticles = () => {
-            const particlesContainer = document.querySelector('.particles');
-            if (!particlesContainer) return;
+        // Utility functions for notifications
+        function showSuccess(message) {
+            // Create a toast notification
+            const toast = document.createElement('div');
+            toast.style.position = 'fixed';
+            toast.style.bottom = '20px';
+            toast.style.right = '20px';
+            toast.style.background = 'rgba(76, 175, 80, 0.9)';
+            toast.style.color = 'white';
+            toast.style.padding = '12px 20px';
+            toast.style.borderRadius = '6px';
+            toast.style.zIndex = '10000';
+            toast.style.fontSize = '14px';
+            toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+            toast.textContent = message;
             
-            for (let i = 0; i < 20; i++) {
-                const particle = document.createElement('div');
-                particle.classList.add('particle');
-                particle.style.left = `${Math.random() * 100}%`;
-                particle.style.top = `${Math.random() * 100}%`;
-                particle.style.width = `${Math.random() * 10 + 2}px`;
-                particle.style.height = particle.style.width;
-                particle.style.animationDuration = `${Math.random() * 10 + 5}s`;
-                particlesContainer.appendChild(particle);
-            }
-        };
+            document.body.appendChild(toast);
+            
+            // Auto-remove after 3 seconds
+            setTimeout(() => {
+                if (document.body.contains(toast)) {
+                    document.body.removeChild(toast);
+                }
+            }, 3000);
+        }
 
-        createParticles();
+        function showError(message) {
+            // Create a toast notification
+            const toast = document.createElement('div');
+            toast.style.position = 'fixed';
+            toast.style.bottom = '20px';
+            toast.style.right = '20px';
+            toast.style.background = 'rgba(244, 67, 54, 0.9)';
+            toast.style.color = 'white';
+            toast.style.padding = '12px 20px';
+            toast.style.borderRadius = '6px';
+            toast.style.zIndex = '10000';
+            toast.style.fontSize = '14px';
+            toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (document.body.contains(toast)) {
+                    document.body.removeChild(toast);
+                }
+            }, 5000);
+        }
     </script>
 </body>
 </html>

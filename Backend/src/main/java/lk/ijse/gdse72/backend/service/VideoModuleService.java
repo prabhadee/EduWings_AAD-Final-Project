@@ -10,4 +10,5 @@ public interface VideoModuleService {
     VideoModuleDTO getModuleById(Long moduleId);
     List<VideoModuleDTO> getModulesByMonth(Long monthId);
     List<VideoModuleDTO> getAllModules(); // Added method to get all modules
+    List<VideoModuleDTO> getModulesByMonthIds(List<Long> monthIds);
 }

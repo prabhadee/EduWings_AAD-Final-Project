@@ -14,4 +14,6 @@ public interface BatchService {
     List<BatchDTO> getAllBatches();
 //    List<BatchDTO> getBatchesByInstructorId(Long instructorId);
 //    List<Batch> getBatchEntitiesByInstructorId(Long instructorId);
+List<BatchDTO> getBatchesByInstructorId(Long instructorId);
+
 }

@@ -23,8 +23,7 @@ public class AuthService {
     private final JwtUtil jwtUtil;
 
     public AuthResponseDTO authenticate(AuthDTO authDTO) {
-        User user=
-                userRepository.findByEmail(authDTO.getEmail())
+        User user=userRepository.findByEmail(authDTO.getEmail())
                         .orElseThrow(
                                 ()->new UsernameNotFoundException
                                         ("Email not found"));
@@ -34,8 +33,10 @@ public class AuthService {
             throw new BadCredentialsException("Incorrect password");
         }
         String token=jwtUtil.generateToken(user.getEmail());
-        return  new AuthResponseDTO(token,user.getRole().name());
+//        return  new AuthResponseDTO(token,user.getRole().name());
+        return new AuthResponseDTO(token,user.getRole().name(), user.getUsername(), user.getId());
     }
+
     public String register(RegisterDTO registerDTO) {
         if(userRepository.findByUsername(
                 registerDTO.getEmail()).isPresent()){

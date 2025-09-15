@@ -7,7 +7,8 @@ import java.util.Set;
 
 @Entity
 @Table(name = "batch_month")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

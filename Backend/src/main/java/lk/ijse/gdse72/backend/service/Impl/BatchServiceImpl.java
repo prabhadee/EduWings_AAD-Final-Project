@@ -128,12 +128,12 @@ public class BatchServiceImpl implements BatchService {
         batchRepository.deleteById(batchId);
     }
 
-    @Override
-    public BatchDTO getBatchById(Long batchId) {
-        Batch batch = batchRepository.findById(batchId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Batch not found"));
-        return mapToDTO(batch);
-    }
+//    @Override
+//    public BatchDTO getBatchById(Long batchId) {
+//        Batch batch = batchRepository.findById(batchId)
+//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Batch not found"));
+//        return mapToDTO(batch);
+//    }
 
     @Override
     public List<BatchDTO> getAllBatches() {
@@ -152,12 +152,12 @@ public class BatchServiceImpl implements BatchService {
                 .instructorId(batch.getInstructor().getId()) // ✅ Fixed
                 .build();
     }
-    private BatchDTO convertToDTO(Batch batch) {
-        BatchDTO dto = modelMapper.map(batch, BatchDTO.class);
-        dto.setCourseId(batch.getCourse().getId());
-        dto.setInstructorId(batch.getInstructor().getId());
-        return dto;
-    }
+//    private BatchDTO convertToDTO(Batch batch) {
+//        BatchDTO dto = modelMapper.map(batch, BatchDTO.class);
+//        dto.setCourseId(batch.getCourse().getId());
+//        dto.setInstructorId(batch.getInstructor().getId());
+//        return dto;
+//    }
 
 //    @Override
 //    public List<BatchDTO> getBatchesByInstructorId(Long instructorId) {
@@ -187,6 +187,29 @@ public class BatchServiceImpl implements BatchService {
 //    public List<Batch> getBatchEntitiesByInstructorId(Long instructorId) {
 //        return batchRepository.findByInstructorId(instructorId);
 //    }
+@Override
+public List<BatchDTO> getBatchesByInstructorId(Long instructorId) {
+    List<Batch> batches = batchRepository.findByInstructorId(instructorId);
+    return batches.stream()
+            .map(this::convertToDTO)
+            .collect(Collectors.toList());
+}
 
+    @Override
+    public BatchDTO getBatchById(Long batchId) {
+        Batch batch = batchRepository.findById(batchId)
+                .orElseThrow(() -> new RuntimeException("Batch not found"));
+        return convertToDTO(batch);
+    }
+
+    private BatchDTO convertToDTO(Batch batch) {
+        return BatchDTO.builder()
+                .batchId(batch.getBatchId())
+                .batchName(batch.getBatchName())
+                .monthlyFee(batch.getMonthlyFee())
+                .courseId(batch.getCourse().getId())
+                .instructorId(batch.getInstructor().getId())
+                .build();
+    }
 
 }

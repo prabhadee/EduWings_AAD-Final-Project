@@ -15,4 +15,8 @@ public interface BatchRepository extends JpaRepository<Batch, Long> {
 //    List<Batch> findBatchesWithDetailsByInstructorId(@Param("instructorId") Long instructorId);
 //
 //    List<Batch> findByInstructorId(Long instructorId);
+List<Batch> findByInstructorId(Long instructorId);
+
+    List<Batch> findByIsActiveTrue();
+    List<Batch> findByCourseId(Long courseId);
 }

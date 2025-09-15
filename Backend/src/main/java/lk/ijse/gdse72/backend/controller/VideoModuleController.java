@@ -4,6 +4,8 @@ import lk.ijse.gdse72.backend.dto.VideoModuleDTO;
 import lk.ijse.gdse72.backend.service.Impl.CloudinaryService;
 import lk.ijse.gdse72.backend.service.VideoModuleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -46,7 +48,36 @@ public class VideoModuleController {
         return videoModuleService.createModule(monthId, dto);
     }
 
+    @PutMapping(value = "/update-with-files/{moduleId}", consumes = "multipart/form-data")
+    public VideoModuleDTO updateModuleWithFiles(
+            @PathVariable Long moduleId,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) Long monthId,
+            @RequestParam(value = "video", required = false) MultipartFile[] videoFile
+    ) throws IOException {
+        VideoModuleDTO existingModule = videoModuleService.getModuleById(moduleId);
 
+        if (title != null) existingModule.setTitle(title);
+        if (monthId != null) existingModule.setMonthId(monthId);
+
+        List<String> videoUrls = existingModule.getVideoUrls();
+        if (videoUrls == null) {
+            videoUrls = new ArrayList<>();
+        }
+
+        // Add new videos if any
+        if (videoFile != null) {
+            for (MultipartFile file : videoFile) {
+                if (!file.isEmpty()) {
+                    String url = cloudinaryService.uploadVideo(file);
+                    videoUrls.add(url);
+                }
+            }
+        }
+
+        existingModule.setVideoUrls(videoUrls);
+        return videoModuleService.updateModule(moduleId, existingModule);
+    }
     @PutMapping("/update/{moduleId}")
     public VideoModuleDTO updateModule(@PathVariable Long moduleId, @RequestBody VideoModuleDTO dto) {
         return videoModuleService.updateModule(moduleId, dto);
@@ -71,5 +102,28 @@ public class VideoModuleController {
     @GetMapping
     public List<VideoModuleDTO> getAllModules() {
         return videoModuleService.getAllModules();
+    }
+
+    @PostMapping("/by-months")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    public ResponseEntity<List<VideoModuleDTO>> getModulesByMonthIds(@RequestBody List<Long> monthIds) {
+        return ResponseEntity.ok(videoModuleService.getModulesByMonthIds(monthIds));
+    }
+    @DeleteMapping("/{moduleId}/videos/{index}")
+    public VideoModuleDTO deleteVideoFromModule(@PathVariable Long moduleId, @PathVariable int index) {
+        VideoModuleDTO module = videoModuleService.getModuleById(moduleId);
+        List<String> videoUrls = module.getVideoUrls();
+
+        if (index >= 0 && index < videoUrls.size()) {
+            String urlToDelete = videoUrls.get(index);
+            // Optional: Delete from Cloudinary
+            // cloudinaryService.deleteVideo(urlToDelete);
+
+            videoUrls.remove(index);
+            module.setVideoUrls(videoUrls);
+            return videoModuleService.updateModule(moduleId, module);
+        }
+
+        throw new RuntimeException("Invalid video index");
     }
 }

@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lk.ijse.gdse72.backend.dto.ApiResponse;
 import lk.ijse.gdse72.backend.dto.AuthDTO;
+import lk.ijse.gdse72.backend.dto.AuthResponseDTO;
 import lk.ijse.gdse72.backend.dto.RegisterDTO;
 import lk.ijse.gdse72.backend.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -30,13 +34,30 @@ public class AuthController {
                 "OK",
                 authService.register(registerDTO)));
     }
+//    @PostMapping("/login")
+//    public ResponseEntity<ApiResponse> login(
+//            @RequestBody AuthDTO authDTO) {
+//        return ResponseEntity.ok(new ApiResponse(
+//                200,
+//                "OK",
+//                authService.authenticate(authDTO)));
+//    }
+
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse> login(
-            @RequestBody AuthDTO authDTO) {
-        return ResponseEntity.ok(new ApiResponse(
-                200,
-                "OK",
-                authService.authenticate(authDTO)));
+    public ResponseEntity<ApiResponse> login( @RequestBody AuthDTO authDTO) {
+        try{
+            AuthResponseDTO authResponse = authService.authenticate(authDTO);
+
+            Map<String , Object> data = new HashMap<>();
+            data.put("accessToken",authResponse.getAccessToken());
+            data.put("role",authResponse.getRole());
+            data.put("username",authResponse.getUsername());
+            data.put("userId" , authResponse.getUserId());
+
+                return ResponseEntity.ok(new ApiResponse(200,"Login SuccessFull ",data));
+        }catch(Exception e){
+            return ResponseEntity.ok(new ApiResponse(401,"Authentication Failed" , e.getMessage()));
+        }
     }
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
@@ -47,4 +68,5 @@ public class AuthController {
         }
         return ResponseEntity.ok().build();
     }
+
 }

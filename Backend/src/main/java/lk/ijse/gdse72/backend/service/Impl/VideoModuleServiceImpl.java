@@ -102,4 +102,18 @@ public class VideoModuleServiceImpl implements VideoModuleService {
                         .build()
                 ).collect(Collectors.toList());
     }
+
+    @Override
+    public List<VideoModuleDTO> getModulesByMonthIds(List<Long> monthIds) {
+        List<VideoModule> modules = moduleRepository.findByMonthIds(monthIds);
+
+        return modules.stream()
+                .map(m -> VideoModuleDTO.builder()
+                        .moduleId(m.getModuleId())
+                        .title(m.getTitle())
+                        .videoUrls(m.getVideoUrlsList())
+                        .monthId(m.getMonth().getMonthId())
+                        .build()
+                ).collect(Collectors.toList());
+    }
 }
