@@ -27,4 +27,9 @@ public class BatchMonth {
 
     @OneToMany(mappedBy = "month", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<VideoModule> modules = new HashSet<>();
+
+    @ManyToMany(mappedBy = "months")
+    private Set<Payment> payments = new HashSet<>();
+
+//
 }

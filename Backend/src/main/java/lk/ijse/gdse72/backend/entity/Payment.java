@@ -41,13 +41,14 @@ public class Payment {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToMany
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "payment_months",
             joinColumns = @JoinColumn(name = "payment_id"),
             inverseJoinColumns = @JoinColumn(name = "month_id")
     )
     private Set<BatchMonth> months = new HashSet<>();
+
 
     public enum PaymentStatus {
         PENDING, COMPLETED, FAILED, REFUNDED
