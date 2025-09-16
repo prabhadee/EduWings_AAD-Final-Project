@@ -21,7 +21,6 @@ import java.security.MessageDigest;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -47,6 +46,8 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     @Transactional
     public PaymentDTO createPayment(PaymentDTO paymentDTO) {
+        log.info("Creating payment for user: {}", paymentDTO.getUserId());
+
         if (paymentDTO.getUserId() == null)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User ID is required");
 
@@ -74,50 +75,51 @@ public class PaymentServiceImpl implements PaymentService {
                 .amount(paymentDTO.getAmount())
                 .currency(paymentDTO.getCurrency())
                 .paymentDate(LocalDateTime.now())
-                .status(Payment.PaymentStatus.PENDING) // initial status
+                .status(Payment.PaymentStatus.PENDING)
                 .referenceNumber(generateReferenceNumber())
                 .months(months)
                 .description(paymentDTO.getDescription())
                 .build();
 
-        payment = paymentRepository.save(payment);
-        return convertToDTO(payment);
+        Payment savedPayment = paymentRepository.save(payment);
+        log.info("Payment created with ID: {} and reference: {}", savedPayment.getPaymentId(), savedPayment.getReferenceNumber());
+
+        return convertToDTO(savedPayment);
     }
 
     @Override
-    public Map<String, Object> createPayHereFormData(Long userId, Set<Long> monthIds, Double amount, String description) {
+    public Map<String, Object> createPayHereFormData(Long userId, Set<Long> monthIds, Double amount, String description, String referenceNumber) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
-        String orderId = "EDU-" + UUID.randomUUID().toString().substring(0, 8);
         String currency = "LKR";
         String formattedAmount = String.format("%.2f", amount);
-        String hash = generatePayHereHash(merchantId, orderId, formattedAmount, currency, merchantSecret);
+        String hash = generatePayHereHash(merchantId, referenceNumber, formattedAmount, currency, merchantSecret);
 
         Map<String, Object> data = new LinkedHashMap<>();
         data.put("merchant_id", merchantId);
         data.put("return_url", appBaseUrl + "/api/payments/success");
         data.put("cancel_url", appBaseUrl + "/api/payments/cancel");
         data.put("notify_url", appBaseUrl + "/api/payments/notify");
-        data.put("order_id", orderId);
+        data.put("order_id", referenceNumber);
         data.put("items", description);
         data.put("amount", formattedAmount);
         data.put("currency", currency);
         data.put("hash", hash);
 
-        String userName = user.getUsername() != null ? user.getUsername() : "User";
-
-        data.put("first_name", "firstName");
-        data.put("last_name", "lastName");
-        data.put("user_name", userName);
+        // User information
+        data.put("first_name", user.getUsername() != null ? user.getUsername() : "Student");
+        data.put("last_name", "User");
         data.put("email", user.getEmail() != null ? user.getEmail() : "student@eduwings.com");
         data.put("phone", user.getNumber() != null ? user.getNumber() : "0771234567");
         data.put("address", "EduWings Institute");
         data.put("city", "Colombo");
         data.put("country", "Sri Lanka");
+
+        // Custom data for tracking
         data.put("custom_1", monthIds.stream().map(String::valueOf).collect(Collectors.joining(",")));
         data.put("custom_2", userId.toString());
-        data.put("sandbox", "1");
+        data.put("sandbox", true);
 
         return data;
     }
@@ -125,40 +127,54 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     @Transactional
     public void updatePaymentFromPayHere(Map<String, String> params) {
-        String status = params.get("status_code");
-        String custom1 = params.get("custom_1");
-        String custom2 = params.get("custom_2");
+        log.info("Updating payment from PayHere notification: {}", params);
 
-        // Parse custom data
-        Set<Long> monthIds = parseMonthIds(custom1);
-        Long userId = Long.parseLong(custom2);
+        String orderId = params.get("order_id");
+        String statusCode = params.get("status_code");
 
-        if ("2".equals(status)) { // PayHere Completed
-            PaymentDTO paymentDTO = PaymentDTO.builder()
-                    .userId(userId)
-                    .amount(Double.parseDouble(params.get("payhere_amount")))
-                    .currency(params.get("payhere_currency"))
-                    .monthIds(monthIds)
-                    .description(params.get("items"))
-                    .build();
-
-            // Save as COMPLETED
-            PaymentDTO saved = createPayment(paymentDTO);
-            updatePaymentStatus(saved.getPaymentId(), Payment.PaymentStatus.COMPLETED);
+        if (orderId == null) {
+            log.error("No order_id in PayHere notification");
+            return;
         }
-    }
 
-    private Set<Long> parseMonthIds(String customData) {
-        return Stream.of(customData.split(","))
-                .filter(s -> !s.isBlank())
-                .map(Long::parseLong)
-                .collect(Collectors.toSet());
+        Optional<Payment> paymentOpt = paymentRepository.findByReferenceNumber(orderId);
+        if (paymentOpt.isEmpty()) {
+            log.error("Payment not found for reference number: {}", orderId);
+            return;
+        }
+
+        Payment payment = paymentOpt.get();
+
+        // Update status based on PayHere status code
+        Payment.PaymentStatus newStatus = Payment.PaymentStatus.PENDING;
+        switch (statusCode) {
+            case "2":
+                newStatus = Payment.PaymentStatus.COMPLETED;
+                payment.setPaymentDate(LocalDateTime.now());
+                break;
+            case "0":
+                newStatus = Payment.PaymentStatus.PENDING;
+                break;
+            case "-1":
+            case "-2":
+            case "-3":
+                newStatus = Payment.PaymentStatus.FAILED;
+                break;
+            default:
+                log.warn("Unknown PayHere status code: {}", statusCode);
+                newStatus = Payment.PaymentStatus.FAILED;
+        }
+
+        payment.setStatus(newStatus);
+        paymentRepository.save(payment);
+        log.info("Payment {} updated to status: {}", orderId, newStatus);
     }
 
     private String generatePayHereHash(String merchantId, String orderId, String amount, String currency, String merchantSecret) {
         try {
             String secretMd5 = md5Hex(merchantSecret).toUpperCase();
-            return md5Hex(merchantId + orderId + amount + currency + secretMd5).toUpperCase();
+            String data = merchantId + orderId + amount + currency + secretMd5;
+            return md5Hex(data).toUpperCase();
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error generating hash");
         }
@@ -193,6 +209,26 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    @Transactional
+    public PaymentDTO updatePaymentStatusByReference(String referenceNumber, Payment.PaymentStatus status) {
+        if (referenceNumber == null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Reference number is required");
+
+        Payment payment = paymentRepository.findByReferenceNumber(referenceNumber)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Payment not found with reference: " + referenceNumber));
+
+        payment.setStatus(status);
+
+        if (status == Payment.PaymentStatus.COMPLETED) {
+            payment.setPaymentDate(LocalDateTime.now());
+        }
+
+        Payment saved = paymentRepository.save(payment);
+        return convertToDTO(saved);
+    }
+
+    @Override
     public PaymentDTO getPaymentById(Long paymentId) {
         if (paymentId == null)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Payment ID is required");
@@ -219,9 +255,7 @@ public class PaymentServiceImpl implements PaymentService {
         if (monthId == null)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Month ID is required");
 
-        return paymentRepository.findAll().stream()
-                .filter(p -> p.getMonths().stream()
-                        .anyMatch(m -> m.getMonthId().equals(monthId)))
+        return paymentRepository.findByMonthId(monthId).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
@@ -231,8 +265,7 @@ public class PaymentServiceImpl implements PaymentService {
         if (status == null)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Status is required");
 
-        return paymentRepository.findAll().stream()
-                .filter(p -> p.getStatus() == status)
+        return paymentRepository.findByStatus(status).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
@@ -282,7 +315,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private String generateReferenceNumber() {
-        return "PAY-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        return "PAY-" + System.currentTimeMillis() + "-" + UUID.randomUUID().toString().substring(0, 4).toUpperCase();
     }
 
     private PaymentDTO convertToDTO(Payment payment) {

@@ -51,8 +51,20 @@ public class PaymentController {
             Double amount = Double.parseDouble(requestData.get("amount").toString());
             String description = requestData.get("description").toString();
 
+            // Create payment record first
+            PaymentDTO paymentDTO = PaymentDTO.builder()
+                    .userId(userId)
+                    .amount(amount)
+                    .currency("LKR")
+                    .monthIds(monthIds)
+                    .description(description)
+                    .build();
+
+            PaymentDTO createdPayment = paymentService.createPayment(paymentDTO);
+
+            // Generate PayHere form data
             Map<String, Object> formData = paymentService.createPayHereFormData(
-                    userId, monthIds, amount, description);
+                    userId, monthIds, amount, description, createdPayment.getReferenceNumber());
 
             return ResponseEntity.ok(formData);
         } catch (Exception e) {
@@ -65,8 +77,15 @@ public class PaymentController {
     public ResponseEntity<?> paymentSuccess(@RequestParam Map<String, String> params) {
         try {
             String orderId = params.get("order_id");
+
+            // Update payment status to completed
+            if (orderId != null) {
+                paymentService.updatePaymentStatusByReference(orderId,
+                        lk.ijse.gdse72.backend.entity.Payment.PaymentStatus.COMPLETED);
+            }
+
             return ResponseEntity.status(HttpStatus.FOUND)
-                    .header("Location", appBaseUrl + "/payment-success.html?paymentId=" + orderId)
+                    .header("Location", appBaseUrl + "/pages/student/payment-success.html?paymentId=" + orderId)
                     .build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error processing payment");
@@ -77,8 +96,15 @@ public class PaymentController {
     public ResponseEntity<?> paymentCancel(@RequestParam Map<String, String> params) {
         try {
             String orderId = params.get("order_id");
+
+            // Update payment status to failed
+            if (orderId != null) {
+                paymentService.updatePaymentStatusByReference(orderId,
+                        lk.ijse.gdse72.backend.entity.Payment.PaymentStatus.FAILED);
+            }
+
             return ResponseEntity.status(HttpStatus.FOUND)
-                    .header("Location", appBaseUrl + "/payment-cancel.html?paymentId=" + orderId)
+                    .header("Location", appBaseUrl + "/pages/student/payment-cancel.html?paymentId=" + orderId)
                     .build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error cancelling payment");
@@ -88,13 +114,17 @@ public class PaymentController {
     @PostMapping("/notify")
     public ResponseEntity<String> paymentNotify(@RequestParam Map<String, String> params) {
         try {
+            System.out.println("PayHere Notify received: " + params);
+
             if (!verifyPayHereSignature(params)) {
+                System.out.println("Invalid signature");
                 return ResponseEntity.badRequest().body("Invalid signature");
             }
 
             paymentService.updatePaymentFromPayHere(params);
             return ResponseEntity.ok("OK");
         } catch (Exception e) {
+            System.out.println("Error handling notification: " + e.getMessage());
             return ResponseEntity.badRequest().body("Error handling notification");
         }
     }

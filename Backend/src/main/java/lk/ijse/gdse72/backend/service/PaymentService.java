@@ -13,6 +13,8 @@ public interface PaymentService {
 
     PaymentDTO updatePaymentStatus(Long paymentId, Payment.PaymentStatus status);
 
+    PaymentDTO updatePaymentStatusByReference(String referenceNumber, Payment.PaymentStatus status);
+
     PaymentDTO getPaymentById(Long paymentId);
 
     List<PaymentDTO> getPaymentsByUser(Long userId);
@@ -27,8 +29,8 @@ public interface PaymentService {
 
     String generatePaymentReport(Long paymentId);
 
-    // New methods for PayHere integration
-    Map<String, Object> createPayHereFormData(Long userId, Set<Long> monthIds, Double amount, String description);
+    // PayHere integration methods
+    Map<String, Object> createPayHereFormData(Long userId, Set<Long> monthIds, Double amount, String description, String referenceNumber);
 
     void updatePaymentFromPayHere(Map<String, String> params);
 }
