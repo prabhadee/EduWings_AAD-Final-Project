@@ -208,13 +208,7 @@
             orderDetails.innerHTML = summaryHTML;
         }
 
-        // function selectPaymentMethod(event, method) {
-        //     document.querySelectorAll('.payment-option').forEach(option=>option.classList.remove('selected'));
-        //     event.currentTarget.classList.add('selected');
-        //     selectedPaymentMethod = method;
-        // }
-
-         function selectPaymentMethod(event, method) {
+        function selectPaymentMethod(event, method) {
             document.querySelectorAll('.payment-option').forEach(option => {
                 option.classList.remove('selected');
             });
@@ -223,165 +217,193 @@
         }
         
         function getCurrentStudentId() {
-            const studentId= localStorage.getItem("studentId");
-            // if (storedId) return storedId;
-            // const userData = localStorage.getItem('userData');
-            // if (userData) return JSON.parse(userData).id;
-            if(studentId) return JSON.parse(studentId);
+            const studentId = localStorage.getItem("studentId");
+            if (studentId) return JSON.parse(studentId);
             if (token) {
                 try { return JSON.parse(atob(token.split('.')[1])).userId || null; }
                 catch(e){ console.error(e); }
             }
             return null;
         }
+function initiatePayHerePayment() {
+    if (!enrollmentData || !currentUser) {
+        Swal.fire('Error', 'Enrollment or user information missing.', 'error');
+        return;
+    }
 
+    // Show loading indicator
+    document.getElementById('loadingPayment').style.display = 'flex';
+
+    // Prepare request data
+    const requestData = {
+        userId: currentUser.id,
+        monthIds: enrollmentData.selectedMonthIds.join(','),
+        amount: enrollmentData.totalAmount || 0,
+        description: `Course Enrollment for ${enrollmentData.batchName || 'Batch'}`
+    };
+
+    // Get PayHere form data from backend
+    fetch(`${API_BASE_URL}/payments/create-payhere`, {
+        method: "POST",
+        headers: { 
+            "Authorization": `Bearer ${token}`, 
+            "Content-Type": "application/json" 
+        },
+        body: JSON.stringify(requestData)
+    })
+    .then(async res => {
+        if (!res.ok) {
+            const errorData = await res.json();
+            throw new Error(errorData.error || "Failed to create payment form");
+        }
+        return res.json();
+    })
+    .then(paymentData => {
+        // Validate required fields
+        const requiredFields = ['merchant_id', 'order_id', 'amount', 'currency', 'hash', 
+                               'first_name', 'last_name', 'email', 'phone', 'sandbox'];
+        for (const field of requiredFields) {
+            if (!paymentData[field]) throw new Error(`Missing required field: ${field}`);
+        }
+
+        // Prepare payment object for PayHere
+        const payment = {
+            sandbox: true,
+            merchant_id: paymentData.merchant_id,
+            return_url: paymentData.return_url,
+            cancel_url: paymentData.cancel_url,
+            notify_url: paymentData.notify_url,
+            order_id: paymentData.order_id,
+            items: paymentData.items,
+            amount: paymentData.amount,
+            currency: paymentData.currency,
+            hash: paymentData.hash,
+            first_name: paymentData.first_name,
+            last_name: paymentData.last_name,
+            email: paymentData.email,
+            phone: paymentData.phone,
+            address: paymentData.address,
+            city: paymentData.city,
+            country: paymentData.country,
+            custom_1: paymentData.custom_1,
+            custom_2: paymentData.custom_2
+        };
+
+        console.log("Starting PayHere Payment...", payment);
+
+        // Set up PayHere callbacks
+        payhere.onCompleted = function(orderId) {
+            Swal.fire({
+                title: 'Payment Completed!',
+                text: `Your payment for Order ID: ${orderId} has been completed.`,
+                icon: 'success',
+                confirmButtonText: 'OK'
+            }).then(() => {
+window.location.href = '/pages/student/payment-success.html?paymentId=' + orderId;
+            });
+        };
+
+        payhere.onDismissed = function() {
+            Swal.fire({
+                title: 'Payment Cancelled',
+                text: 'Payment was cancelled or the window was closed.',
+                icon: 'warning',
+                confirmButtonText: 'OK'
+            });
+        };
+
+        payhere.onError = function(error) {
+            console.error("PayHere payment error:", error);
+            Swal.fire({
+                title: 'Payment Error',
+                text: error || 'Unknown error occurred during payment',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        };
+
+        // Start PayHere payment
+        payhere.startPayment(payment);
+    })
+    .catch(err => {
+        console.error('Payment creation error:', err);
+        Swal.fire('Error', err.message || 'Failed to initiate payment.', 'error');
+    })
+    .finally(() => {
+        document.getElementById('loadingPayment').style.display = 'none';
+    });
+}
         // function initiatePayHerePayment() {
-        //     if (!enrollmentData || !currentUser) { Swal.fire('Error','Enrollment or user missing.','error'); return; }
-        //     const studentId = JSON.parse(localStorage.getItem("studentId"));
+        //     if (!enrollmentData || !currentUser) {
+        //         Swal.fire('Error', 'Enrollment or user information missing.', 'error');
+        //         return;
+        //     }
 
-        //     if (!studentId) { Swal.fire('Error','Unable to identify student.','error'); return; }
-
-        //     enrollmentData.studentId = studentId;
+        //     // Show loading indicator
         //     document.getElementById('loadingPayment').style.display = 'flex';
 
+        //     // Generate a temporary reference number for the payment
+        //     const tempReferenceNumber = "TEMP-" + Date.now();
+            
+        //     // Prepare payment data for PayHere (without saving to DB yet)
         //     const paymentData = {
-        //         amount: enrollmentData.totalAmount || 0,
-        //         paymentDate: new Date().toISOString(),
-        //         status: "PENDING",
-        //         referenceNumber: "REF"+Date.now(),
-        //         userId: currentUser.id,
-        //         userEmail: currentUser.email || "noemail@example.com",
-        //         monthIds: enrollmentData.selectedMonthIds || [],
-        //         description: "Course Enrollment"
-        //     };
-
-        //     fetch(`${API_BASE_URL}/payments/create`, {
-        //         method:"POST",
-        //         headers: { "Authorization":`Bearer ${token}`, "Content-Type":"application/json" },
-        //         body: JSON.stringify(paymentData)
-        //     })
-        //     .then(async res=>{
-        //         const data = await res.json();
-        //         if (!res.ok) throw new Error(data.error || "Failed to create payment");
-        //         startPayHerePayment(data.paymentId, data.amount, data);
-        //     })
-        //     .catch(err=>{
-        //         console.error(err);
-        //         document.getElementById('loadingPayment').style.display='none';
-        //         Swal.fire('Error',err.message || 'Failed to initiate payment.','error');
-        //     });
-        // }
-
-        // function startPayHerePayment(paymentId, amount, items) {
-        //     const payment = {
-        //         sandbox:true,
-        //         merchant_id:"1232027",
-        //         return_url:`${API_BASE_URL}/payments/success/${paymentId}`,
-        //         cancel_url:`${API_BASE_URL}/payments/cancel/${paymentId}`,
-        //         notify_url:`${API_BASE_URL}/payments/notify`,
-        //         order_id:paymentId,
-        //         items: items?.description || "Course Enrollment",
-        //         amount: (amount||0).toFixed(2),
-        //         currency:"LKR",
+        //         sandbox: true,
+        //         merchant_id: "1232027", // Your merchant ID
+        //         return_url: `${window.location.origin}/payment-success.html?reference=${tempReferenceNumber}`,
+        //         cancel_url: `${window.location.origin}/payment-cancel.html?reference=${tempReferenceNumber}`,
+        //         notify_url: `${API_BASE_URL}/payments/notify`,
+        //         order_id: tempReferenceNumber,
+        //         items: `Course Enrollment for ${enrollmentData.batchName || 'Batch'}`,
+        //         amount: (enrollmentData.totalAmount || 0).toFixed(2),
+        //         currency: "LKR",
         //         first_name: currentUser?.firstName || "Student",
         //         last_name: currentUser?.lastName || "User",
         //         email: currentUser?.email || "noemail@example.com",
-        //         phone: currentUser?.number || "0771234567",
-        //         address:"EduWings Institute",
-        //         city:"Colombo",
-        //         country:"Sri Lanka",
-        //         delivery_address:"No physical delivery",
-        //         delivery_city:"Colombo",
-        //         delivery_country:"Sri Lanka",
+        //         phone: currentUser?.phone || "0771234567",
+        //         address: "EduWings Institute",
+        //         city: "Colombo",
+        //         country: "Sri Lanka",
         //         custom_1: JSON.stringify({
-        //             studentId: enrollmentData.studentId,
-        //             batchId: enrollmentData.batchId || null,
-        //             monthIds: enrollmentData.selectedMonthIds || []
+        //             studentId: currentUser.id,
+        //             batchId: enrollmentData.batchId,
+        //             monthIds: enrollmentData.selectedMonthIds,
+        //             userId: currentUser.id,
+        //             userEmail: currentUser.email,
+        //             description: `Course Enrollment for ${enrollmentData.batchName || 'Batch'}`
         //         })
         //     };
 
-        //     try { payhere.startPayment(payment); }
-        //     catch(err){ console.error(err); Swal.fire('Error','Payment failed.','error'); }
-        //     finally{ document.getElementById('loadingPayment').style.display='none'; }
+        //     // Open PayHere payment page directly without saving to DB first
+        //     payhere.startPayment(paymentData);
+            
+        //     // Hide loading indicator after a short delay
+        //     setTimeout(() => {
+        //         document.getElementById('loadingPayment').style.display = 'none';
+        //     }, 2000);
         // }
 
-        function initiatePayHerePayment() {
-            if (!enrollmentData || !currentUser) {
-                Swal.fire('Error', 'Enrollment or user information missing.', 'error');
-                return;
-            }
+        // Listen for messages from PayHere (for handling callbacks)
+        // Listen for messages from PayHere (optional, usually for sandbox)
+window.addEventListener('message', function(event) {
+    if (event.origin !== "https://sandbox.payhere.lk") return;
 
-            const paymentData = {
-                amount: enrollmentData.totalAmount || 0,
-                userId: currentUser.id,
-                userEmail: currentUser.email || "noemail@example.com",
-                monthIds: enrollmentData.selectedMonthIds || [],
-                description: `Course Enrollment for ${enrollmentData.batchName || 'Batch'}`
-            };
+    console.log('Message from PayHere:', event.data);
 
-            // Create payment record first
-            fetch(`${API_BASE_URL}/payments/create`, {
-                method: "POST",
-                headers: { 
-                    "Authorization": `Bearer ${token}`, 
-                    "Content-Type": "application/json" 
-                },
-                body: JSON.stringify(paymentData)
-            })
-            .then(async res => {
-                if (!res.ok) {
-                    const errorData = await res.json();
-                    throw new Error(errorData.error || "Failed to create payment");
-                }
-                return res.json();
-            })
-            .then(payment => {
-                // Start PayHere payment with the created payment ID
-                startPayHerePayment(payment);
-            })
-            .catch(err => {
-                console.error('Payment creation error:', err);
-                Swal.fire('Error', err.message || 'Failed to initiate payment.', 'error');
-            });
-        }
-
-        function startPayHerePayment(payment) {
-            // PayHere payment object
-            const paymentConfig = {
-                sandbox: true, // Set to false in production
-                merchant_id: "1232027", // Use your merchant ID from config
-                return_url: `${API_BASE_URL}/payments/success`,
-                cancel_url: `${API_BASE_URL}/payments/cancel`,
-                notify_url: `${API_BASE_URL}/payments/notify`,
-                order_id: payment.paymentId.toString(),
-                items: payment.description || "Course Enrollment",
-                amount: payment.amount.toFixed(2),
-                currency: "LKR",
-                first_name: currentUser?.firstName || "Student",
-                last_name: currentUser?.lastName || "User",
-                email: currentUser?.email || "noemail@example.com",
-                phone: currentUser?.phone || "0771234567",
-                address: "EduWings Institute",
-                city: "Colombo",
-                country: "Sri Lanka",
-                custom_1: JSON.stringify({
-                    studentId: currentUser.id,
-                    batchId: enrollmentData.batchId,
-                    monthIds: enrollmentData.selectedMonthIds
-                })
-            };
-
-            // Open PayHere payment page
-            payhere.startPayment(paymentConfig);
-        }
+    if (event.data === 'payment-completed') {
+        Swal.fire('Success', 'Payment completed successfully!', 'success')
+        .then(() => {
+            window.location.href = '/pages/student/payment-success.html';
+        });
+    }
+});
 
         window.logout = function(){
-                localStorage.removeItem("accessToken");
-                localStorage.removeItem("enrollmentData");
-                localStorage.removeItem("__paypal_storage__");
-                localStorage.removeItem("selectedBatchId");
-                localStorage.removeItem("userRole");
-            }
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("enrollmentData");
+            localStorage.removeItem("__paypal_storage__");
+            localStorage.removeItem("selectedBatchId");
+            localStorage.removeItem("userRole");
+        }
     </script>
 </body>
 </html>

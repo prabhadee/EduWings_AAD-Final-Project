@@ -25,6 +25,9 @@ public class Payment {
     private Double amount;
 
     @Column(nullable = false)
+    private String currency;
+
+    @Column(nullable = false)
     private LocalDateTime paymentDate;
 
     @Enumerated(EnumType.STRING)

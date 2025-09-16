@@ -4,23 +4,13 @@ import lk.ijse.gdse72.backend.dto.PaymentDTO;
 import lk.ijse.gdse72.backend.entity.Payment;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public interface PaymentService {
 
-    /**
-     * Create a new payment (initially PENDING), with associated months.
-     * @param paymentDTO DTO containing amount, userId, monthIds, description, userEmail (others generated).
-     * @return the created PaymentDTO (with paymentId, referenceNumber, status, etc).
-     * @throws RuntimeException if user or months not found, or invalid data.
-     */
     PaymentDTO createPayment(PaymentDTO paymentDTO);
 
-    /**
-     * Update a payment's status.
-     * @param paymentId the ID of the payment.
-     * @param status the new status enum.
-     * @return updated PaymentDTO.
-     */
     PaymentDTO updatePaymentStatus(Long paymentId, Payment.PaymentStatus status);
 
     PaymentDTO getPaymentById(Long paymentId);
@@ -35,10 +25,10 @@ public interface PaymentService {
 
     List<PaymentDTO> getAllPayments();
 
-    /**
-     * Generate a simple textual receipt / report for the payment.
-     * @param paymentId id of payment
-     * @return report string
-     */
     String generatePaymentReport(Long paymentId);
+
+    // New methods for PayHere integration
+    Map<String, Object> createPayHereFormData(Long userId, Set<Long> monthIds, Double amount, String description);
+
+    void updatePaymentFromPayHere(Map<String, String> params);
 }
