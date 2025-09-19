@@ -1,11 +1,13 @@
 package lk.ijse.gdse72.backend.controller;
 
+import lk.ijse.gdse72.backend.dto.UserDTO;
 import lk.ijse.gdse72.backend.entity.User;
 import lk.ijse.gdse72.backend.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -23,15 +25,24 @@ public class UserController {
     public UserController(UserService userService) {
         this.userService = userService;
     }
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/all")
-    public ResponseEntity<List<User>> getAllUsers() {
-        try {
-            List<User> users = userService.findAll();
-            return ResponseEntity.ok(users);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+        List<UserDTO> users = userService.findAll()
+                .stream()
+                .map(user -> new UserDTO(
+                        user.getId(),
+                        user.getUsername(),
+                        user.getEmail(),
+                        user.getNumber(),
+                        user.getRole() != null ? user.getRole().name() : null
+                ))
+                .toList();
+
+        return ResponseEntity.ok(users);
     }
+
+
     @GetMapping("/current")
     public ResponseEntity<User> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
         logger.info("Getting current user for: {}", userDetails != null ? userDetails.getUsername() : "null");

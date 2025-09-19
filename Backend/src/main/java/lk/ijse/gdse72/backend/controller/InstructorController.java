@@ -36,7 +36,7 @@ public class InstructorController {
 
         // Upload photo if provided
         if (photoFile != null && !photoFile.isEmpty()) {
-            photoUrl = cloudinaryService.uploadVideo(photoFile); // implement uploadImage
+            photoUrl = cloudinaryService.uploadFile(photoFile); // implement uploadImage
         }
 
         InstructorDTO dto = new InstructorDTO();
@@ -65,7 +65,7 @@ public class InstructorController {
 
         // Upload photo if provided
         if (photoFile != null && !photoFile.isEmpty()) {
-            photoUrl = cloudinaryService.uploadVideo(photoFile);
+            photoUrl = cloudinaryService.uploadFile(photoFile);
         }
 
         InstructorDTO dto = new InstructorDTO();
@@ -132,5 +132,7 @@ public class InstructorController {
     @GetMapping("/course/{courseId}")
     public List<Instructor> getInstructorsByCourseId(@PathVariable Long courseId) {
         return instructorService.getInstructorsByCourseId(courseId);
+
+
     }
 }

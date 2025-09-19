@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -37,7 +38,8 @@ public class PaymentController {
             PaymentDTO created = paymentService.createPayment(paymentDTO);
             return ResponseEntity.ok(created);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Error creating payment: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Error creating payment: " + e.getMessage()));
         }
     }
 
@@ -51,7 +53,6 @@ public class PaymentController {
             Double amount = Double.parseDouble(requestData.get("amount").toString());
             String description = requestData.get("description").toString();
 
-            // Create payment record first
             PaymentDTO paymentDTO = PaymentDTO.builder()
                     .userId(userId)
                     .amount(amount)
@@ -62,7 +63,6 @@ public class PaymentController {
 
             PaymentDTO createdPayment = paymentService.createPayment(paymentDTO);
 
-            // Generate PayHere form data
             Map<String, Object> formData = paymentService.createPayHereFormData(
                     userId, monthIds, amount, description, createdPayment.getReferenceNumber());
 
@@ -77,13 +77,10 @@ public class PaymentController {
     public ResponseEntity<?> paymentSuccess(@RequestParam Map<String, String> params) {
         try {
             String orderId = params.get("order_id");
-
-            // Update payment status to completed
             if (orderId != null) {
-                paymentService.updatePaymentStatusByReference(orderId,
-                        lk.ijse.gdse72.backend.entity.Payment.PaymentStatus.COMPLETED);
+                paymentService.updatePaymentStatusByReference(
+                        orderId, lk.ijse.gdse72.backend.entity.Payment.PaymentStatus.COMPLETED);
             }
-
             return ResponseEntity.status(HttpStatus.FOUND)
                     .header("Location", appBaseUrl + "/pages/student/payment-success.html?paymentId=" + orderId)
                     .build();
@@ -96,13 +93,10 @@ public class PaymentController {
     public ResponseEntity<?> paymentCancel(@RequestParam Map<String, String> params) {
         try {
             String orderId = params.get("order_id");
-
-            // Update payment status to failed
             if (orderId != null) {
-                paymentService.updatePaymentStatusByReference(orderId,
-                        lk.ijse.gdse72.backend.entity.Payment.PaymentStatus.FAILED);
+                paymentService.updatePaymentStatusByReference(
+                        orderId, lk.ijse.gdse72.backend.entity.Payment.PaymentStatus.FAILED);
             }
-
             return ResponseEntity.status(HttpStatus.FOUND)
                     .header("Location", appBaseUrl + "/pages/student/payment-cancel.html?paymentId=" + orderId)
                     .build();
@@ -115,12 +109,10 @@ public class PaymentController {
     public ResponseEntity<String> paymentNotify(@RequestParam Map<String, String> params) {
         try {
             System.out.println("PayHere Notify received: " + params);
-
             if (!verifyPayHereSignature(params)) {
                 System.out.println("Invalid signature");
                 return ResponseEntity.badRequest().body("Invalid signature");
             }
-
             paymentService.updatePaymentFromPayHere(params);
             return ResponseEntity.ok("OK");
         } catch (Exception e) {
@@ -133,19 +125,27 @@ public class PaymentController {
         try {
             String[] keys = {"merchant_id", "order_id", "payhere_amount", "payhere_currency", "status_code"};
             StringBuilder signatureData = new StringBuilder();
-
             for (String key : keys) {
                 signatureData.append(params.getOrDefault(key, ""));
             }
-
             signatureData.append(merchantSecret);
-
             String generatedSignature = DigestUtils.md5DigestAsHex(signatureData.toString().getBytes()).toUpperCase();
             String receivedSignature = params.get("md5sig");
-
             return generatedSignature.equalsIgnoreCase(receivedSignature);
         } catch (Exception e) {
             return false;
         }
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<PaymentDTO>> getPaymentsByUser(@PathVariable("userId") Long userId) {
+        List<PaymentDTO> payments = paymentService.getPaymentsByUser(userId);
+        return ResponseEntity.ok(payments);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<PaymentDTO>> getAllPayments() {
+        List<PaymentDTO> payments = paymentService.getAllPayments();
+        return ResponseEntity.ok(payments);
     }
 }

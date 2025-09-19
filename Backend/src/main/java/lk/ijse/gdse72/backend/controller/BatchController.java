@@ -5,6 +5,7 @@ import lk.ijse.gdse72.backend.dto.InstructorDTO;
 import lk.ijse.gdse72.backend.entity.Batch;
 import lk.ijse.gdse72.backend.entity.BatchMonth;
 import lk.ijse.gdse72.backend.entity.Course;
+import lk.ijse.gdse72.backend.repository.BatchMonthRepository;
 import lk.ijse.gdse72.backend.repository.BatchRepository;
 import lk.ijse.gdse72.backend.service.BatchService;
 import lk.ijse.gdse72.backend.service.CourseService;
@@ -16,7 +17,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -29,6 +32,24 @@ public class BatchController {
     private final CourseService courseService;
     private final InstructorService instructorService;
     private final BatchRepository batchRepository;;
+    private final BatchMonthRepository batchMonthRepository;
+
+    @GetMapping("/by-month/{monthId}")
+    public ResponseEntity<BatchDTO> getBatchByMonthId(@PathVariable Long monthId) {
+        BatchMonth month = batchMonthRepository.findById(monthId)
+                .orElseThrow(() -> new RuntimeException("Month not found with id: " + monthId));
+
+        Batch batch = month.getBatch();
+        BatchDTO batchDTO = BatchDTO.builder()
+                .batchId(batch.getBatchId())
+                .batchName(batch.getBatchName())
+                .monthlyFee(batch.getMonthlyFee())
+                .courseId(batch.getCourse().getId())
+                .instructorId(batch.getInstructor().getId())
+                .build();
+
+        return ResponseEntity.ok(batchDTO);
+    }
 
     @PostMapping("/create")
     public BatchDTO createBatch(@RequestBody BatchDTO batchDTO) {
@@ -107,6 +128,46 @@ public ResponseEntity<List<BatchDTO>> getBatchesByInstructor(@PathVariable Long 
                 Hibernate.initialize(month.getModules());
             }
             return ResponseEntity.ok(batchObj);
+        }
+
+        return ResponseEntity.notFound().build();
+    }
+
+    // Add this to your BatchController
+    @GetMapping("/by-month-with-details/{monthId}")
+    public ResponseEntity<Map<String, Object>> getBatchByMonthWithDetails(@PathVariable Long monthId) {
+        Optional<Batch> batchOpt = batchRepository.findByMonthsMonthId(monthId);
+
+        if (batchOpt.isPresent()) {
+            Batch batch = batchOpt.get();
+
+            // Create a response map with all needed data
+            Map<String, Object> response = new HashMap<>();
+            response.put("batchId", batch.getBatchId());
+            response.put("batchName", batch.getBatchName());
+            response.put("monthlyFee", batch.getMonthlyFee());
+
+            // Add course details
+            if (batch.getCourse() != null) {
+                Map<String, Object> courseDetails = new HashMap<>();
+                courseDetails.put("id", batch.getCourse().getId());
+                courseDetails.put("courseName", batch.getCourse().getCourseName());
+                courseDetails.put("description", batch.getCourse().getDescription());
+                response.put("course", courseDetails);
+            }
+
+            // Add instructor details
+            if (batch.getInstructor() != null) {
+                Map<String, Object> instructorDetails = new HashMap<>();
+                instructorDetails.put("id", batch.getInstructor().getId());
+                instructorDetails.put("name", batch.getInstructor().getName());
+                instructorDetails.put("email", batch.getInstructor().getEmail());
+                instructorDetails.put("phone", batch.getInstructor().getPhone());
+                instructorDetails.put("photo", batch.getInstructor().getPhoto());
+                response.put("instructor", instructorDetails);
+            }
+
+            return ResponseEntity.ok(response);
         }
 
         return ResponseEntity.notFound().build();

@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface BatchRepository extends JpaRepository<Batch, Long> {
@@ -19,4 +20,6 @@ List<Batch> findByInstructorId(Long instructorId);
 
     List<Batch> findByIsActiveTrue();
     List<Batch> findByCourseId(Long courseId);
+
+    Optional<Batch> findByMonthsMonthId(Long monthId);
 }

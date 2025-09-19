@@ -22,7 +22,7 @@
             padding: 2rem;
             box-shadow: 0 8px 32px rgba(0,0,0,0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            max-width: 500px;
+            max-width: 700px;
         }
         h1 {
             font-size: 2.5rem;
@@ -30,7 +30,7 @@
         }
         p {
             font-size: 1.2rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
         }
         .success-icon {
             font-size: 4rem;
@@ -47,10 +47,16 @@
             cursor: pointer;
             text-decoration: none;
             display: inline-block;
+            margin-top: 1rem;
         }
         .btn:hover {
             background: #008f44;
             transform: translateY(-2px);
+        }
+        iframe {
+            margin-top: 1rem;
+            border: none;
+            border-radius: 10px;
         }
     </style>
 </head>
@@ -61,7 +67,60 @@
         </div>
         <h1>Payment Successful!</h1>
         <p>Your payment has been processed successfully. You can now access your courses.</p>
+        <p id="payment-info"></p>
+
+        <h2>Payment Receipt</h2>
+        <iframe id="payment-report" width="100%" height="600px"></iframe>
+
+        <!-- ✅ Return Home button -->
         <a href="/index.html" class="btn">Return to Home</a>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentId = urlParams.get('paymentId');
+    const paymentInfoEl = document.getElementById("payment-info");
+    const pdfFrame = document.getElementById("payment-report");
+
+    // Retrieve stored payment data
+    const lastPayment = JSON.parse(localStorage.getItem("lastPayment"));
+
+    if (lastPayment) {
+        paymentInfoEl.innerHTML = `
+            <strong>Order ID:</strong> ${lastPayment.orderId}<br>
+            <strong>Amount:</strong> Rs. ${lastPayment.amount.toFixed(2)}<br>
+            <strong>Batch:</strong> ${lastPayment.batchName}<br>
+            <strong>Months:</strong> ${lastPayment.months}<br>
+            <strong>Date:</strong> ${lastPayment.date}
+        `;
+
+        // If you have a backend endpoint that generates PDF receipts:
+        pdfFrame.src = `http://localhost:8080/api/payments/report/${lastPayment.orderId}`;
+    } else {
+        paymentInfoEl.innerHTML = "No payment details found.";
+
+    }
+try {
+    if (lastPayment) {
+        pdfFrame.src = `http://localhost:8080/api/payments/report/${lastPayment.orderId}`;
+    }
+} catch (e) {
+    console.error(`Error generating PDF for paymentId=${paymentId}`, e);
+}
+
+});
+
+    // document.addEventListener("DOMContentLoaded", () => {
+    //     const urlParams = new URLSearchParams(window.location.search);
+    //     const paymentId = urlParams.get('paymentId');
+    //     const pdfFrame = document.getElementById('payment-report');
+
+    //     if (paymentId) {
+    //         // ✅ Set iframe src
+    //         pdfFrame.src = `http://localhost:8080/api/payments/${paymentId}/report/pdf`;
+    //     }
+    // });
+    </script>
 </body>
 </html>

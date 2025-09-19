@@ -509,3 +509,24 @@
             margin-top: 1rem;
         }
     }
+
+    .divider {
+        text-align: center;
+        margin: 15px 0;
+        position: relative;
+    }
+    .divider span {
+        background: #fff;
+        padding: 0 10px;
+        color: #666;
+    }
+    .divider:before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: #ccc;
+        z-index: -1;
+    }

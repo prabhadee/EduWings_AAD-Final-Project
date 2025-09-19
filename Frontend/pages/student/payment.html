@@ -241,6 +241,7 @@
     // Prepare request data for creating payment
     const requestData = {
         userId: currentUser.id,
+        
         monthIds: enrollmentData.selectedMonthIds.join(','),
         amount: enrollmentData.totalAmount || 0,
         description: `Course Enrollment for ${enrollmentData.batchName || 'Batch'}`
@@ -318,6 +319,15 @@
                 localStorage.removeItem('enrollmentData');
                 // Redirect to success page
                 window.location.href = '/pages/student/payment-success.html?paymentId=' + orderId;
+                localStorage.setItem("lastPayment", JSON.stringify({
+    orderId: orderId,
+    amount: enrollmentData.totalAmount,
+    batchName: enrollmentData.batchName,
+    months: enrollmentData.selectedMonthIds.length,
+    userId: currentUser.id,
+    date: new Date().toLocaleString()
+}));
+
             });
         };
 
@@ -556,7 +566,23 @@ window.addEventListener('message', function(event) {
         });
     }
 });
+// For "Pay" button
+function payDirectly() {
+    fetch('/api/payments/create', {
+        method: 'POST',
+        body: JSON.stringify(paymentData),
+        headers: {'Content-Type': 'application/json'}
+    });
+}
 
+// For "Pay with PayHere" button  
+function payWithPayHere() {
+    fetch('/api/payments/create-payhere', {
+        method: 'POST',
+        body: JSON.stringify(paymentData),
+        headers: {'Content-Type': 'application/json'}
+    });
+}
         window.logout = function(){
             localStorage.removeItem("accessToken");
             localStorage.removeItem("enrollmentData");

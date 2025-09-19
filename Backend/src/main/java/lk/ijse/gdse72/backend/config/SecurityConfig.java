@@ -18,6 +18,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import static org.springframework.web.servlet.function.RequestPredicates.headers;
+
 @Configuration
 @EnableMethodSecurity
 @RequiredArgsConstructor
@@ -43,22 +45,21 @@ public class SecurityConfig {
 //                        UsernamePasswordAuthenticationFilter.class);
 //        return http.build();
 //    }
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationCors()))
-                .authorizeHttpRequests(
-                        auth->
-                                auth.anyRequest().permitAll()) // Allow all requests
-                .sessionManagement(
-                        session->
-                                session.sessionCreationPolicy
-                                        (SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthFilter,
-                        UsernamePasswordAuthenticationFilter.class);
-        return http.build();
-    }
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http.csrf(AbstractHttpConfigurer::disable)
+            .cors(cors -> cors.configurationSource(corsConfigurationCors()))
+            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll()) // Allow all requests
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authenticationProvider(authenticationProvider())
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            .headers(headers -> headers
+                    .frameOptions(frame -> frame.sameOrigin()) // ✅ allow iframe from same origin
+            );
+
+    return http.build();
+}
+
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider daoAuthenticationProvider

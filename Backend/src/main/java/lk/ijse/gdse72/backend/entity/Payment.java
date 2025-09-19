@@ -49,7 +49,6 @@ public class Payment {
     )
     private Set<BatchMonth> months = new HashSet<>();
 
-
     public enum PaymentStatus {
         PENDING, COMPLETED, FAILED, REFUNDED
     }

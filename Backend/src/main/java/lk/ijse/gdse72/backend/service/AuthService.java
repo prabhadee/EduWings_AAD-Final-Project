@@ -37,7 +37,7 @@ public class AuthService {
         return new AuthResponseDTO(token,user.getRole().name(), user.getUsername(), user.getId());
     }
 
-    public String register(RegisterDTO registerDTO) {
+    public String   register(RegisterDTO registerDTO) {
         if(userRepository.findByUsername(
                 registerDTO.getEmail()).isPresent()){
             throw new RuntimeException("Username already exists");

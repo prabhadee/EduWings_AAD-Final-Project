@@ -25,7 +25,9 @@ public class User {
     private String email;
 
     @Column(nullable = false)
-    private String password;  // This will store the hashed password
+    @JsonIgnore   // <-- hide password in API responses
+    private String password;
+    // This will store the hashed password
 
     @Column(nullable = false)
     private String number;

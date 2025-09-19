@@ -16,4 +16,6 @@ public interface VideoModuleRepository extends JpaRepository<VideoModule, Long> 
     // Custom query to find modules by multiple month IDs
     @Query("SELECT m FROM VideoModule m WHERE m.month.monthId IN :monthIds")
     List<VideoModule> findByMonthIds(@Param("monthIds") List<Long> monthIds);
+
+    List<VideoModule> findByMonth_MonthId(Long monthId);
 }

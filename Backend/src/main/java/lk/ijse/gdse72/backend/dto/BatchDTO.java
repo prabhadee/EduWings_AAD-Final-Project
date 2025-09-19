@@ -18,4 +18,7 @@ public class BatchDTO {
     private Long courseId;
     private Long instructorId;
     private Set<Long> monthIds;
+
+
+
 }
