@@ -1,4 +1,4 @@
-package lk.ijse.gdse72.backend.service.Impl;
+package lk.ijse.gdse72.backend.service.Impl; // Fixed package name
 
 import lk.ijse.gdse72.backend.dto.PaymentDTO;
 import lk.ijse.gdse72.backend.entity.BatchMonth;
@@ -7,13 +7,14 @@ import lk.ijse.gdse72.backend.entity.User;
 import lk.ijse.gdse72.backend.repository.BatchMonthRepository;
 import lk.ijse.gdse72.backend.repository.PaymentRepository;
 import lk.ijse.gdse72.backend.repository.UserRepository;
-import lk.ijse.gdse72.backend.service.EmailService;
+import lk.ijse.gdse72.backend.service.EmailService; // Added import
 import lk.ijse.gdse72.backend.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -51,14 +52,7 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional
     public PaymentDTO createPayment(PaymentDTO paymentDTO) {
         log.info("Creating payment for user: {}", paymentDTO.getUserId());
-        if (paymentDTO.getUserId() == null)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User ID is required");
-        if (paymentDTO.getAmount() == null || paymentDTO.getAmount() <= 0)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Amount must be greater than zero");
-        if (paymentDTO.getCurrency() == null || paymentDTO.getCurrency().isEmpty())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Currency is required");
-        if (paymentDTO.getMonthIds() == null || paymentDTO.getMonthIds().isEmpty())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "At least one month must be selected");
+        validatePaymentDTO(paymentDTO);
 
         User user = userRepository.findById(paymentDTO.getUserId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with ID: " + paymentDTO.getUserId()));
@@ -127,6 +121,7 @@ public class PaymentServiceImpl implements PaymentService {
         log.info("Updating payment from PayHere notification: {}", params);
         String orderId = params.get("order_id");
         String statusCode = params.get("status_code");
+
         if (orderId == null) {
             log.error("No order_id in PayHere notification");
             return;
@@ -139,42 +134,58 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         Payment payment = paymentOpt.get();
+        Payment.PaymentStatus newStatus = determinePaymentStatus(statusCode);
 
-        // Update status based on PayHere status code
-        Payment.PaymentStatus newStatus = Payment.PaymentStatus.PENDING;
-        switch (statusCode) {
-            case "2": // Completed
-                newStatus = Payment.PaymentStatus.COMPLETED;
-                payment.setPaymentDate(LocalDateTime.now());
+        if (newStatus == Payment.PaymentStatus.COMPLETED) {
+            payment.setPaymentDate(LocalDateTime.now());
+            paymentRepository.save(payment);
 
-                // Save payment first
-                paymentRepository.save(payment);
-
-                // Send email asynchronously
-                try {
-                    User user = payment.getUser();
-                    emailService.sendPaymentSuccessEmail(user.getEmail(), user.getUsername(), payment.getReferenceNumber(), payment.getAmount());
-                    log.info("Payment success email sent to {}", user.getEmail());
-                } catch (Exception ex) {
-                    log.error("Failed to send payment success email: {}", ex.getMessage());
-                }
-                break;
-            case "0": // Pending
-                newStatus = Payment.PaymentStatus.PENDING;
-                break;
-            case "-1":
-            case "-2":
-            case "-3": // Failed
-                newStatus = Payment.PaymentStatus.FAILED;
-                break;
-            default:
-                log.warn("Unknown PayHere status code: {}", statusCode);
-                newStatus = Payment.PaymentStatus.FAILED;
+            // Send email asynchronously
+            sendPaymentSuccessEmailAsync(payment);
         }
 
         payment.setStatus(newStatus);
         paymentRepository.save(payment);
         log.info("Payment {} updated to status: {}", orderId, newStatus);
+    }
+
+    @Async
+    public void sendPaymentSuccessEmailAsync(Payment payment) {
+        try {
+            User user = payment.getUser();
+            emailService.sendPaymentSuccessEmail(
+                    user.getEmail(),
+                    user.getUsername(),
+                    payment.getReferenceNumber(),
+                    payment.getAmount()
+            );
+            log.info("Payment success email sent to {}", user.getEmail());
+        } catch (Exception ex) {
+            log.error("Failed to send payment success email: {}", ex.getMessage());
+        }
+    }
+
+    private Payment.PaymentStatus determinePaymentStatus(String statusCode) {
+        return switch (statusCode) {
+            case "2" -> Payment.PaymentStatus.COMPLETED; // Completed
+            case "0" -> Payment.PaymentStatus.PENDING; // Pending
+            case "-1", "-2", "-3" -> Payment.PaymentStatus.FAILED; // Failed
+            default -> {
+                log.warn("Unknown PayHere status code: {}", statusCode);
+                yield Payment.PaymentStatus.FAILED;
+            }
+        };
+    }
+
+    private void validatePaymentDTO(PaymentDTO paymentDTO) {
+        if (paymentDTO.getUserId() == null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User ID is required");
+        if (paymentDTO.getAmount() == null || paymentDTO.getAmount() <= 0)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Amount must be greater than zero");
+        if (paymentDTO.getCurrency() == null || paymentDTO.getCurrency().isEmpty())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Currency is required");
+        if (paymentDTO.getMonthIds() == null || paymentDTO.getMonthIds().isEmpty())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "At least one month must be selected");
     }
 
     private String generatePayHereHash(String merchantId, String orderId, String amount, String currency, String merchantSecret) {
@@ -198,7 +209,8 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     @Transactional
     public PaymentDTO updatePaymentStatus(Long paymentId, Payment.PaymentStatus status) {
-        if (paymentId == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Payment ID is required for status update");
+        if (paymentId == null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Payment ID is required for status update");
 
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Payment not found with ID: " + paymentId));
@@ -215,7 +227,8 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     @Transactional
     public PaymentDTO updatePaymentStatusByReference(String referenceNumber, Payment.PaymentStatus status) {
-        if (referenceNumber == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Reference number is required");
+        if (referenceNumber == null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Reference number is required");
 
         Payment payment = paymentRepository.findByReferenceNumber(referenceNumber)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Payment not found with reference: " + referenceNumber));
@@ -231,7 +244,8 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public PaymentDTO getPaymentById(Long paymentId) {
-        if (paymentId == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Payment ID is required");
+        if (paymentId == null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Payment ID is required");
 
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Payment not found with ID: " + paymentId));
@@ -241,7 +255,8 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public List<PaymentDTO> getPaymentsByMonth(Long monthId) {
-        if (monthId == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Month ID is required");
+        if (monthId == null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Month ID is required");
 
         return paymentRepository.findByMonthId(monthId).stream()
                 .map(this::convertToDTO)
@@ -250,7 +265,8 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public List<PaymentDTO> getPaymentsByStatus(Payment.PaymentStatus status) {
-        if (status == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Status is required");
+        if (status == null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Status is required");
 
         return paymentRepository.findByStatus(status).stream()
                 .map(this::convertToDTO)
@@ -260,8 +276,10 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     @Transactional
     public void deletePayment(Long paymentId) {
-        if (paymentId == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Payment ID is required");
-        if (!paymentRepository.existsById(paymentId)) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Payment not found with ID: " + paymentId);
+        if (paymentId == null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Payment ID is required");
+        if (!paymentRepository.existsById(paymentId))
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Payment not found with ID: " + paymentId);
 
         paymentRepository.deleteById(paymentId);
     }
@@ -274,8 +292,17 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    public List<PaymentDTO> getPaymentsByUser(Long userId) {
+        List<Payment> payments = paymentRepository.findByUser_Id(userId);
+        return payments.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public String generatePaymentReport(Long paymentId) {
-        if (paymentId == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Payment ID is required");
+        if (paymentId == null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Payment ID is required");
 
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Payment not found with ID: " + paymentId));
@@ -312,12 +339,5 @@ public class PaymentServiceImpl implements PaymentService {
                         .collect(Collectors.toSet()))
                 .description(payment.getDescription())
                 .build();
-    }
-
-    public List<PaymentDTO> getPaymentsByUser(Long userId) {
-        List<Payment> payments = paymentRepository.findByUser_Id(userId);
-        return payments.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
     }
 }

@@ -11,9 +11,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
             text-align: center;
+            padding: 20px;
         }
         .container {
             background: rgba(255, 255, 255, 0.1);
@@ -22,7 +23,8 @@
             padding: 2rem;
             box-shadow: 0 8px 32px rgba(0,0,0,0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            max-width: 700px;
+            max-width: 800px;
+            width: 100%;
         }
         h1 {
             font-size: 2.5rem;
@@ -47,16 +49,25 @@
             cursor: pointer;
             text-decoration: none;
             display: inline-block;
-            margin-top: 1rem;
+            margin: 0.5rem;
         }
         .btn:hover {
             background: #008f44;
             transform: translateY(-2px);
         }
-        iframe {
-            margin-top: 1rem;
-            border: none;
+        .payment-info {
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        .error-message {
+            color: #ff6b6b;
+            margin: 1rem 0;
+        }
+        .loading {
+            display: none;
+            margin: 1rem 0;
         }
     </style>
 </head>
@@ -67,60 +78,172 @@
         </div>
         <h1>Payment Successful!</h1>
         <p>Your payment has been processed successfully. You can now access your courses.</p>
-        <p id="payment-info"></p>
+        
+        <div class="payment-info" id="payment-info">
+            Loading payment details...
+        </div>
 
-        <h2>Payment Receipt</h2>
-        <iframe id="payment-report" width="100%" height="600px"></iframe>
+        <div class="loading" id="loading">
+            <i class="fas fa-spinner fa-spin"></i> Preparing your invoice...
+        </div>
 
-        <!-- ✅ Return Home button -->
-        <a href="/index.html" class="btn">Return to Home</a>
+        <div class="error-message" id="error-message" style="display: none;"></div>
+
+        <div>
+            <button class="btn" onclick="downloadInvoice()">
+                <i class="fas fa-download"></i> Download Invoice
+            </button>
+            <button class="btn" onclick="sendEmailInvoice()">
+                <i class="fas fa-envelope"></i> Email Invoice
+            </button>
+            <a href="/pages/student/MyCourses.html" class="btn">
+                <i class="fas fa-graduation-cap"></i> My Courses
+            </a>
+            <a href="/index.html" class="btn">
+                <i class="fas fa-home"></i> Return to Home
+            </a>
+        </div>
     </div>
 
     <script>
+        const API_BASE_URL = 'http://localhost:8080/api';
+        const token = localStorage.getItem('accessToken');
+        let paymentReference = null;
+
         document.addEventListener("DOMContentLoaded", () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const paymentId = urlParams.get('paymentId');
-    const paymentInfoEl = document.getElementById("payment-info");
-    const pdfFrame = document.getElementById("payment-report");
+            const urlParams = new URLSearchParams(window.location.search);
+            paymentReference = urlParams.get('paymentId');
+            const paymentInfoEl = document.getElementById("payment-info");
 
-    // Retrieve stored payment data
-    const lastPayment = JSON.parse(localStorage.getItem("lastPayment"));
+            // Try to get payment data from URL parameter first
+            if (paymentReference) {
+                paymentInfoEl.innerHTML = `
+                    <strong>Payment Reference:</strong> ${paymentReference}<br>
+                    <strong>Status:</strong> <span style="color: #00a651;">COMPLETED</span><br>
+                    <strong>Date:</strong> ${new Date().toLocaleString()}
+                `;
+                
+                // Auto-download invoice after 3 seconds
+                setTimeout(() => {
+                    downloadInvoice();
+                }, 3000);
+            } else {
+                // Fallback to localStorage
+                const lastPayment = JSON.parse(localStorage.getItem("lastPayment"));
+                if (lastPayment) {
+                    paymentReference = lastPayment.orderId;
+                    paymentInfoEl.innerHTML = `
+                        <strong>Order ID:</strong> ${lastPayment.orderId}<br>
+                        <strong>Amount:</strong> LKR ${lastPayment.amount.toFixed(2)}<br>
+                        <strong>Batch:</strong> ${lastPayment.batchName}<br>
+                        <strong>Months:</strong> ${lastPayment.months}<br>
+                        <strong>Date:</strong> ${lastPayment.date}
+                    `;
+                } else {
+                    paymentInfoEl.innerHTML = '<span class="error-message">No payment details found.</span>';
+                }
+            }
+        });
 
-    if (lastPayment) {
-        paymentInfoEl.innerHTML = `
-            <strong>Order ID:</strong> ${lastPayment.orderId}<br>
-            <strong>Amount:</strong> Rs. ${lastPayment.amount.toFixed(2)}<br>
-            <strong>Batch:</strong> ${lastPayment.batchName}<br>
-            <strong>Months:</strong> ${lastPayment.months}<br>
-            <strong>Date:</strong> ${lastPayment.date}
-        `;
+        async function downloadInvoice() {
+            if (!paymentReference) {
+                showError('Payment reference not found');
+                return;
+            }
 
-        // If you have a backend endpoint that generates PDF receipts:
-        pdfFrame.src = `http://localhost:8080/api/payments/report/${lastPayment.orderId}`;
-    } else {
-        paymentInfoEl.innerHTML = "No payment details found.";
+            try {
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('error-message').style.display = 'none';
 
-    }
-try {
-    if (lastPayment) {
-        pdfFrame.src = `http://localhost:8080/api/payments/report/${lastPayment.orderId}`;
-    }
-} catch (e) {
-    console.error(`Error generating PDF for paymentId=${paymentId}`, e);
-}
+                const response = await fetch(`${API_BASE_URL}/payments/invoice/${paymentReference}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
 
-});
+                if (!response.ok) {
+                    throw new Error('Failed to download invoice');
+                }
 
-    // document.addEventListener("DOMContentLoaded", () => {
-    //     const urlParams = new URLSearchParams(window.location.search);
-    //     const paymentId = urlParams.get('paymentId');
-    //     const pdfFrame = document.getElementById('payment-report');
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Invoice_${paymentReference}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
 
-    //     if (paymentId) {
-    //         // ✅ Set iframe src
-    //         pdfFrame.src = `http://localhost:8080/api/payments/${paymentId}/report/pdf`;
-    //     }
-    // });
+                showSuccess('Invoice downloaded successfully!');
+
+            } catch (error) {
+                console.error('Error downloading invoice:', error);
+                showError('Failed to download invoice. Please try again.');
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        async function sendEmailInvoice() {
+            if (!paymentReference) {
+                showError('Payment reference not found');
+                return;
+            }
+
+            try {
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('error-message').style.display = 'none';
+
+                const response = await fetch(`${API_BASE_URL}/payments/send-invoice-email/${paymentReference}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess('Invoice sent to your email successfully!');
+                } else {
+                    throw new Error(data.error || 'Failed to send email');
+                }
+
+            } catch (error) {
+                console.error('Error sending email:', error);
+                showError('Failed to send email. Please try again.');
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        function showError(message) {
+            const errorEl = document.getElementById('error-message');
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+        }
+
+        function showSuccess(message) {
+            const errorEl = document.getElementById('error-message');
+            errorEl.textContent = message;
+            errorEl.style.color = '#00a651';
+            errorEl.style.display = 'block';
+            
+            // Hide success message after 3 seconds
+            setTimeout(() => {
+                errorEl.style.display = 'none';
+                errorEl.style.color = '#ff6b6b';
+            }, 3000);
+        }
+
+        // Clean up localStorage after some time
+        setTimeout(() => {
+            localStorage.removeItem('lastPayment');
+            localStorage.removeItem('enrollmentData');
+        }, 10000);
     </script>
 </body>
 </html>
