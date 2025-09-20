@@ -45,14 +45,34 @@ public class AuthController {
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
 
+//    @PostMapping("/register")
+//    public ResponseEntity<ApiResponse> registerUser(
+//            @RequestBody RegisterDTO registerDTO) {
+//        return ResponseEntity.ok(new ApiResponse(
+//                200,
+//                "OK",
+//                authService.register(registerDTO)));
+//    }
+
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse> registerUser(
-            @RequestBody RegisterDTO registerDTO) {
-        return ResponseEntity.ok(new ApiResponse(
-                200,
-                "OK",
-                authService.register(registerDTO)));
+    public ResponseEntity<ApiResponse> registerUser(@RequestBody RegisterDTO registerDTO) {
+        try {
+            AuthResponseDTO authResponse = authService.register(registerDTO);
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("accessToken", authResponse.getAccessToken());
+            data.put("role", authResponse.getRole());
+            data.put("username", authResponse.getUsername());
+            data.put("userId", authResponse.getUserId());
+
+            return ResponseEntity.ok(new ApiResponse(200, "Registration Successful", data));
+        } catch (Exception e) {
+            return ResponseEntity.ok(new ApiResponse(400, "Registration Failed", e.getMessage()));
+        }
     }
+
+
+
 //    @PostMapping("/login")
 //    public ResponseEntity<ApiResponse> login(
 //            @RequestBody AuthDTO authDTO) {

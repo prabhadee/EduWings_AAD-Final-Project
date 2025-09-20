@@ -715,17 +715,17 @@ const ADMIN_TOKEN = localStorage.getItem('accessToken'); // or whatever key you 
             `).join('');
         }
 
-        // Get CSS class for role badge
-        function getRoleClass(role) {
-            if (!role) return '';
-            
-            switch(role.toUpperCase()) {
-                case 'ADMIN': return 'role-admin';
-                case 'INSTRUCTOR': return 'role-instructor';
-                case 'STUDENT': return 'role-student';
-                default: return '';
-            }
-        }
+       // Get CSS class for role badge
+function getRoleClass(role) {
+    if (!role) return '';
+    
+    switch(role.toUpperCase()) {
+        case 'ADMIN': return 'role-admin';
+        case 'USER': return 'role-user';
+        default: return '';
+    }
+}
+
 
         // Open edit modal with user data
         function openEditModal(userId) {

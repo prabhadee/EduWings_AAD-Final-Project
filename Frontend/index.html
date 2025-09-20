@@ -2763,64 +2763,103 @@
             }
         }
 
-        // Load current user data from API
-        async function loadCurrentUser() {
-            const USER_TOKEN = getAuthToken();
+        // // Load current user data from API
+        // async function loadCurrentUser() {
+        //     const USER_TOKEN = getAuthToken();
             
-            if (!USER_TOKEN) {
-                console.log('No valid token found, using mock data');
-                showPlaceholderUserData();
-                showDemoModeNotification();
-                return;
-            }
+        //     if (!USER_TOKEN) {
+        //         console.log('No valid token found, using mock data');
+        //         showPlaceholderUserData();
+        //         showDemoModeNotification();
+        //         return;
+        //     }
 
-            try {
-                console.log('Attempting to fetch current user...');
-                const response = await fetch(`${API_BASE_URL}/user/current`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${USER_TOKEN}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
+        //     try {
+        //         console.log('Attempting to fetch current user...');
+        //         const response = await fetch(`${API_BASE_URL}/user/current`, {
+        //             method: 'GET',
+        //             headers: {
+        //                 'Authorization': `Bearer ${USER_TOKEN}`,
+        //                 'Content-Type': 'application/json'
+        //             }
+        //         });
                 
-                console.log('Response status:', response.status);
+        //         console.log('Response status:', response.status);
                 
-                if (response.status === 401) {
-                    // Token expired or invalid
-                    localStorage.removeItem('accessToken');
-                    document.cookie = 'authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-                    showPlaceholderUserData();
-                    showError('Session expired. Please login again.');
-                    return;
-                }
+        //         if (response.status === 401) {
+        //             // Token expired or invalid
+        //             localStorage.removeItem('accessToken');
+        //             document.cookie = 'authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        //             showPlaceholderUserData();
+        //             showError('Session expired. Please login again.');
+        //             return;
+        //         }
                 
-                if (response.status === 500) {
-                    const errorData = await response.text();
-                    console.error('Server error details:', errorData);
-                    throw new Error(`Server error: ${errorData}`);
-                }
+        //         if (response.status === 500) {
+        //             const errorData = await response.text();
+        //             console.error('Server error details:', errorData);
+        //             throw new Error(`Server error: ${errorData}`);
+        //         }
                 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+        //         if (!response.ok) {
+        //             throw new Error(`HTTP error! status: ${response.status}`);
+        //         }
                 
-                currentUser = await response.json();
-                console.log('User data received:', currentUser);
-                populateUserData(currentUser);
+        //         currentUser = await response.json();
+        //         console.log('User data received:', currentUser);
+        //         populateUserData(currentUser);
                 
-            } catch (error) {
-                console.error('Error fetching current user:', error);
+        //     } catch (error) {
+        //         console.error('Error fetching current user:', error);
                 
-                // Check if it's a connection error vs authentication error
-                if (error.message.includes('Failed to fetch') || error.message.includes('Connection refused')) {
-                    showPlaceholderUserData();
-                    showDemoModeNotification();
-                } else {
-                    showError('Failed to load user profile. Please try again.');
-                }
-            }
+        //         // Check if it's a connection error vs authentication error
+        //         if (error.message.includes('Failed to fetch') || error.message.includes('Connection refused')) {
+        //             showPlaceholderUserData();
+        //             showDemoModeNotification();
+        //         } else {
+        //             showError('Failed to load user profile. Please try again.');
+        //         }
+        //     }
+        // }
+async function loadCurrentUser() {
+    // Get studentId from localStorage
+    const studentId = localStorage.getItem('studentId');
+
+    if (!studentId) {
+        console.log('No studentId found, using mock data');
+        showPlaceholderUserData();
+        showDemoModeNotification();
+        return;
+    }
+
+    try {
+        console.log('Fetching user data for studentId:', studentId);
+        const response = await fetch(`${API_BASE_URL}/user/${studentId}`, {
+    method: 'GET',
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem("accessToken")}`
+    }
+});
+
+
+
+        console.log('Response status:', response.status);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+
+        const currentUser = await response.json();
+        console.log('User data received:', currentUser);
+        populateUserData(currentUser);
+
+    } catch (error) {
+        console.error('Error fetching current user:', error);
+        showPlaceholderUserData();
+        showDemoModeNotification();
+    }
+}
 
         // Show placeholder data when API fails
         function showPlaceholderUserData() {

@@ -37,20 +37,49 @@ public class AuthService {
         return new AuthResponseDTO(token,user.getRole().name(), user.getUsername(), user.getId());
     }
 
-    public String   register(RegisterDTO registerDTO) {
-        if(userRepository.findByUsername(
-                registerDTO.getEmail()).isPresent()){
-            throw new RuntimeException("Username already exists");
+//    public String   register(RegisterDTO registerDTO) {
+//        if(userRepository.findByUsername(
+//                registerDTO.getEmail()).isPresent()){
+//            throw new RuntimeException("Username already exists");
+//        }
+//        User user=User.builder()
+//                .username(registerDTO.getUsername())
+//                .email(registerDTO.getEmail())
+//                .password(passwordEncoder.encode(
+//                        registerDTO.getPassword()))
+//                .number(registerDTO.getNumber())
+//                .role(Role.valueOf(registerDTO.getRole()))
+//                .build();
+//        userRepository.save(user);
+//        return  "User Registration Success";
+//    }
+
+    public AuthResponseDTO register(RegisterDTO registerDTO) {
+        // ❌ You’re checking by username but passing email
+        if (userRepository.findByEmail(registerDTO.getEmail()).isPresent()) {
+            throw new RuntimeException("Email already exists");
         }
-        User user=User.builder()
+
+        User user = User.builder()
                 .username(registerDTO.getUsername())
                 .email(registerDTO.getEmail())
-                .password(passwordEncoder.encode(
-                        registerDTO.getPassword()))
+                .password(passwordEncoder.encode(registerDTO.getPassword()))
                 .number(registerDTO.getNumber())
-                .role(Role.valueOf(registerDTO.getRole()))
+                .role(Role.valueOf(registerDTO.getRole().toUpperCase())) // ensure uppercase (USER/ADMIN)
                 .build();
+
         userRepository.save(user);
-        return  "User Registration Success";
+
+        // Generate JWT token for the new user
+        String token = jwtUtil.generateToken(user.getEmail());
+
+        // Return AuthResponseDTO with full data
+        return new AuthResponseDTO(
+                token,
+                user.getRole().name(),
+                user.getUsername(),
+                user.getId()
+        );
     }
+
 }

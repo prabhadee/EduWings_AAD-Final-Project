@@ -167,24 +167,51 @@
         let currentUser = null;
 
         document.addEventListener('DOMContentLoaded', () => {
-            const savedEnrollment = localStorage.getItem('enrollmentData');
-            if (savedEnrollment) enrollmentData = JSON.parse(savedEnrollment);
-            else {
-                Swal.fire('Error', 'No enrollment data found.', 'error')
-                .then(()=>window.location.href='/pages/student/instructors.html');
-            }
+    const savedEnrollment = localStorage.getItem('enrollmentData');
+    if (savedEnrollment) {
+        enrollmentData = JSON.parse(savedEnrollment);
+    } else {
+        Swal.fire('Error', 'No enrollment data found.', 'error')
+            .then(() => window.location.href = '/pages/student/instructors.html');
+        return; // stop execution
+    }
 
-            displayOrderSummary();
+    displayOrderSummary();
 
-            fetch(`${API_BASE_URL}/user/current`, { headers: { "Authorization": `Bearer ${token}` } })
-            .then(res=>res.json())
-            .then(user=>currentUser=user)
-            .catch(err=>{
-                console.error(err);
-                Swal.fire('Error','Unable to load user details.','error')
-                .then(()=>window.location.href="/welcome.html");
-            });
-        });
+    const token = localStorage.getItem("accessToken");
+    const studentId = localStorage.getItem("studentId");
+
+    if (!studentId) {
+        Swal.fire('Error', 'No student ID found in localStorage.', 'error')
+            .then(() => window.location.href = "/welcome.html");
+        return;
+    }
+
+    fetch(`${API_BASE_URL}/user/${studentId}`, { 
+        method: 'GET',
+        headers: { 
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+        } 
+    })
+    .then(res => {
+        if (!res.ok) {
+            if (res.status === 404) throw new Error("User not found");
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+    })
+    .then(user => {
+        currentUser = user;
+        console.log("Loaded user:", currentUser);
+    })
+    .catch(err => {
+        console.error(err);
+        Swal.fire('Error', 'Unable to load user details.', 'error')
+            .then(() => window.location.href = "/welcome.html");
+    });
+});
+
 
         function displayOrderSummary() {
             const orderDetails = document.getElementById('orderDetails');

@@ -1,6 +1,7 @@
 package lk.ijse.gdse72.backend.controller;
 
 import lk.ijse.gdse72.backend.dto.UserDTO;
+import lk.ijse.gdse72.backend.entity.Role;
 import lk.ijse.gdse72.backend.entity.User;
 import lk.ijse.gdse72.backend.service.UserService;
 import org.slf4j.Logger;
@@ -61,7 +62,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
-
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User updatedUser,
                                            @AuthenticationPrincipal UserDetails userDetails) {
@@ -84,6 +85,15 @@ public class UserController {
             currentUser.setUsername(updatedUser.getUsername());
             currentUser.setEmail(updatedUser.getEmail());
             currentUser.setNumber(updatedUser.getNumber());
+            if (updatedUser.getRole() != null) {
+                try {
+                    currentUser.setRole(Role.valueOf(updatedUser.getRole().name()));
+                } catch (IllegalArgumentException e) {
+                    return ResponseEntity.badRequest().body(null); // invalid role
+                }
+            }
+
+
 
             User savedUser = userService.save(currentUser);
             logger.info("User updated successfully: {}", savedUser.getUsername());
@@ -93,4 +103,19 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
+        return userService.findById(id)
+                .map(user -> new UserDTO(
+                        user.getId(),
+                        user.getUsername(),
+                        user.getEmail(),
+                        user.getNumber(),
+                        user.getRole() != null ? user.getRole().name() : null
+                ))
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
 }
