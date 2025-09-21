@@ -1,39 +1,39 @@
-# EduWings - Online Educational Platform 🎓
+EduWings - Online Educational Platform 🎓
+📌 Project Overview
+This is my 2nd Semester Final Project for ITS 1114 – Advanced API Development (AAD) at IJSE (Institute of Java Software Engineering). EduWings is a comprehensive Online Educational Platform that provides a complete learning management system with separate interfaces for students and administrators, featuring secure payment integration with PayHere
 
-## 📌 Project Overview
-This is my 2nd Semester Final Project for ITS 1114 – Advanced API Development (AAD) at IJSE (Institute of Java Software Engineering)...
+🎯 Key Features
+Student Features:
 
----
+User registration and authentication with JWT tokens
+Course browsing and detailed course information
+Batch enrollment with availability checking
+Monthly module purchasing system
+Secure payment processing via PayHere gateway
+PDF invoice generation and download
+User profile management
+Google OAuth integration for easy login
 
-## 🎯 Key Features
+Admin Features:
 
-### Student Features
-- User registration and authentication with JWT tokens
-- Course browsing and detailed course information
-- Batch enrollment with availability checking
-- Monthly module purchasing system
-- Secure payment processing via PayHere gateway
-- PDF invoice generation and download
-- User profile management
-- Google OAuth integration for easy login
+Complete dashboard with analytics and statistics
+Course management (CRUD operations)
+Instructor management and assignment
+Batch scheduling and capacity management
+Module content management
+User management and role assignment
+Payment tracking and financial reports
+System-wide notifications and alerts
 
-### Admin Features
-- Complete dashboard with analytics and statistics
-- Course management (CRUD operations)
-- Instructor management and assignment
-- Batch scheduling and capacity management
-- Module content management
-- User management and role assignment
-- Payment tracking and financial reports
-- System-wide notifications and alerts
 
-## 📸 Screenshots
+📸 Screenshots
 
-### 🔐 Authentication & Security
-- 🔑 User registration with email verification
-- 🔒 Secure JWT-based authentication
-- 📧 Password recovery via OTP
-- 🛡 Role-based access control
+🔐 Authentication & Security
+
+🔑 User registration with email verification
+🔒 Secure JWT-based authentication
+📧 Password recovery via OTP
+🛡 Role-based access control
 
 Sign In
 ![img.png](img.png)
@@ -50,7 +50,7 @@ Forget Password recovery via OTP sent to email
 ![img_28.png](img_28.png)
 
 
-### 🏠 Student Interface
+🏠 Student Interface
 
 User Dashboard
 ![img_3.png](img_3.png)
@@ -94,7 +94,7 @@ Sending Emails
 My Courses
 ![img_16.png](img_16.png)
 
-### 🛠️ Admin Panel & Management
+🛠️ Admin Panel & Management
 
 Admin Dashboard
 ![img_18.png](img_18.png)
@@ -120,10 +120,10 @@ User Overview
 Payment Overview
 ![img_25.png](img_25.png)
 
-## 🎥 Demo Video
+🎥 Demo Video
 https://youtu.be/J_pdo1O1KJQ
 
-## ⚙️ Setup Instructions
+⚙️ Setup Instructions
 
 ✅ Prerequisites
 Make sure you have the following installed:
