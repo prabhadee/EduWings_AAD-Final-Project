@@ -2,6 +2,9 @@ package lk.ijse.gdse72.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,17 +22,28 @@ public class Instructor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // Auto increment ID
 
+    @NotBlank(message = "Instructor name cannot be empty")
+    @Pattern(
+            regexp = "^[a-zA-Z ]+$",
+            message = "Name can only contain letters and spaces"
+    )
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false, unique = true)
+//    @NotBlank(message = "Email cannot be empty")
+//    @Email(message = "Invalid email format")
+//    @Column(nullable = false, unique = true)
     private String email;
 
+    @NotBlank(message = "Phone number cannot be empty")
+    @Pattern(
+            regexp = "^(?:\\+94|0)[1-9][0-9]{8}$",
+            message = "Phone number must be valid (e.g., +94771234567 or 0771234567)"
+    )
     @Column(nullable = false)
     private String phone;
 
-    @Column
-    private String photo; // Store file path or URL
+    private String photo; // Optional → no validation
 
     @Column(nullable = false)
     @Builder.Default
@@ -40,6 +54,4 @@ public class Instructor {
     @JoinColumn(name = "course_id", nullable = false)
     @JsonBackReference
     private Course course;
-
-
 }

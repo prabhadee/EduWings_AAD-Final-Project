@@ -62,7 +62,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User updatedUser,
                                            @AuthenticationPrincipal UserDetails userDetails) {
