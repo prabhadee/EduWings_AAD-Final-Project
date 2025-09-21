@@ -1,7 +1,7 @@
 # EduWings - Online Educational Platform 🎓
 
 ## 📌 Project Overview
-This is my 2nd Semester Final Project for ITS 1114 – Advanced API Development (AAD) at IJSE (Institute of Java Software Engineering)...
+This is my 2nd Semester Final Project for ITS 1114 – Advanced API Development (AAD) at IJSE (Institute of Java Software Engineering). EduWings is a comprehensive Online Educational Platform that provides a complete learning management system with separate interfaces for students and administrators, featuring secure payment integration with PayHere.
 
 
 ## 🎯 Key Features
