@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Courses - EduWings</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --glass-bg: rgba(255, 255, 255, 0.1);
+        --glass-border: rgba(255, 255, 255, 0.2);
+        --shadow-light: 0 8px 32px rgba(0, 0, 0, 0.1);
+        --shadow-medium: 0 16px 64px rgba(0, 0, 0, 0.15);
+        --shadow-heavy: 0 24px 96px rgba(0, 0, 0, 0.2);
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: var(--primary-gradient);
+        color: #333;
+        line-height: 1.6;
+        overflow-x: hidden;
+        min-height: 100vh;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--primary-gradient);
+        border-radius: 4px;
+    }
+
+    /* Navigation */
+    .navbar {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        z-index: 1000;
+        padding: 1rem 0;
+        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .navbar.scrolled {
+        background: rgba(255, 255, 255, 0.98);
+        box-shadow: var(--shadow-medium);
+        padding: 0.7rem 0;
+    }
+
+    .nav-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .logo {
+        font-size: 2rem;
+        font-weight: 800;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        position: relative;
+    }
+
+    .logo::after {
+        content: '';
+        position: absolute;
+        top: -5px;
+        right: -10px;
+        width: 8px;
+        height: 8px;
+        background: var(--secondary-gradient);
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.2); opacity: 0.7; }
+    }
+
+    .nav-menu {
+        display: flex;
+        list-style: none;
+        gap: 2.5rem;
+    }
+
+    .nav-menu a {
+        text-decoration: none;
+        color: #333;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        position: relative;
+        padding: 0.5rem 0;
+    }
+
+    .nav-menu a::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 0;
+        height: 3px;
+        background: var(--primary-gradient);
+        border-radius: 2px;
+        transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        transform: translateX(-50%);
+    }
+
+    .nav-menu a:hover {
+        color: #667eea;
+        transform: translateY(-2px);
+    }
+
+    .nav-menu a:hover::before {
+        width: 100%;
+    }
+
+    .auth-buttons {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn {
+        padding: 0.8rem 2rem;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: left 0.6s;
+    }
+
+    .btn:hover::before {
+        left: 100%;
+    }
+
+    .btn-outline {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+        position: relative;
+    }
+
+    .btn-outline:hover {
+        background: #667eea;
+        color: white;
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-primary {
+        background: var(--primary-gradient);
+        color: white;
+        border: none;
+        box-shadow: var(--shadow-light);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 20px 40px rgba(102, 126, 234, 0.5);
+    }
+
+    /* Main Content */
+    .main-content {
+        padding: 120px 0 80px;
+        min-height: 100vh;
+    }
+
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 2rem;
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 4rem;
+        color: white;
+    }
+
+    .page-header h1 {
+        font-size: clamp(2.5rem, 5vw, 4rem);
+        margin-bottom: 1rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .page-header p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    /* Course Cards */
+    .courses-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .course-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border-radius: 20px;
+        border: 1px solid var(--glass-border);
+        padding: 2rem;
+        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        color: white;
+        box-shadow: var(--shadow-light);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .course-card:hover {
+        transform: translateY(-10px);
+        box-shadow: var(--shadow-heavy);
+    }
+
+    .course-header {
+        margin-bottom: 1.5rem;
+    }
+
+    .course-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: white;
+    }
+
+    .course-info {
+        margin-bottom: 1.5rem;
+        flex-grow: 1;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.8rem;
+        font-size: 0.95rem;
+    }
+
+    .info-icon {
+        width: 20px;
+        margin-right: 0.8rem;
+        color: white;
+    }
+
+    /* Instructor Section */
+    .instructor-section {
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid #667eea;
+    }
+
+    /* Videos Section */
+    .videos-section {
+        margin-top: auto;
+    }
+
+    .videos-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .videos-header h4 {
+        margin: 0;
+        font-weight: 600;
+    }
+
+    .videos-header i {
+        margin-right: 0.5rem;
+        color: white;
+    }
+
+    .video-item {
+        margin-bottom: 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        padding: 10px;
+    }
+
+    .module-video {
+        width: 100%;
+        border-radius: 10px;
+        box-shadow: var(--shadow-light);
+        max-height: 300px;
+    }
+
+    .video-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 0.5rem;
+        justify-content: center;
+    }
+
+    .video-actions a {
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        font-size: 0.85rem;
+        transition: color 0.3s ease;
+        padding: 5px 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 5px;
+    }
+
+    .video-actions a:hover {
+        color: white;
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .file-item {
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .file-info {
+        display: flex;
+        align-items: center;
+        flex-grow: 1;
+    }
+
+    .file-icon {
+        font-size: 1.5rem;
+        margin-right: 15px;
+        color: #4facfe;
+    }
+
+    .file-name {
+        font-weight: 500;
+        margin-bottom: 3px;
+    }
+
+    .file-type {
+        font-size: 0.8rem;
+        opacity: 0.7;
+    }
+
+    /* States */
+    .state-container {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: white;
+    }
+
+    .state-icon {
+        font-size: 4rem;
+        margin-bottom: 1.5rem;
+        opacity: 0.7;
+    }
+
+    .state-title {
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+        font-weight: 700;
+    }
+
+    .state-message {
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Footer */
+    .footer {
+        background: #0f172a;
+        color: white;
+        padding: 80px 0 40px;
+        position: relative;
+    }
+
+    .footer::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: var(--primary-gradient);
+    }
+
+    .footer-content {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 3rem;
+        margin-bottom: 3rem;
+    }
+
+    .footer-section h3 {
+        margin-bottom: 1.5rem;
+        color: white;
+        font-weight: 700;
+        font-size: 1.3rem;
+    }
+
+    .footer-section p {
+        color: #94a3b8;
+        line-height: 1.7;
+        margin-bottom: 1.5rem;
+    }
+
+    .social-icons {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .social-icons a {
+        width: 45px;
+        height: 45px;
+        background: var(--primary-gradient);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .social-icons a:hover {
+        transform: translateY(-3px) scale(1.1);
+        box-shadow: var(--shadow-light);
+    }
+
+    .footer-section ul {
+        list-style: none;
+    }
+
+    .footer-section ul li {
+        margin-bottom: 0.8rem;
+    }
+
+    .footer-section ul li a {
+        color: #94a3b8;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+    .footer-section ul li a:hover {
+        color: white;
+        transform: translateX(5px);
+    }
+
+    .footer-bottom {
+        border-top: 1px solid #1e293b;
+        padding-top: 2rem;
+        text-align: center;
+        color: #64748b;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem 2rem 0;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+        .courses-grid {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
+    }
+
+    @media (max-width: 768px) {
+        .navbar {
+            padding: 0.8rem 0;
+        }
+        
+        .nav-menu {
+            display: none;
+        }
+        
+        .mobile-menu {
+            display: block;
+            font-size: 1.5rem;
+            color: #333;
+            cursor: pointer;
+        }
+        
+        .container {
+            padding: 0 1.5rem;
+        }
+        
+        .course-card {
+            padding: 1.5rem;
+        }
+        
+        .auth-buttons {
+            display: none;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .page-header h1 {
+            font-size: 2.5rem;
+        }
+        
+        .page-header p {
+            font-size: 1.1rem;
+        }
+        
+        .courses-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .footer-content {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Animation classes */
+    .fade-in {
+        animation: fadeIn 1s ease forwards;
+    }
+
+    .slide-in {
+        animation: slideIn 0.8s ease forwards;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+</style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="logo">EduWings</div>
+            <ul class="nav-menu">
+                <li><a href="/index.html">Home</a></li>
+                <li><a href="/pages/student/courses.html">Courses</a></li>
+                <li><a href="/index.html#about">About</a></li>
+                <li><a href="/pages/student/instructors.html">Instructors</a></li>
+                <li><a href="/pages/student/MyCourses.html">My Courses</a></li>
+                <li><a href="/pages/student/contact.html">Contact</a></li>
+            </ul>
+            <div class="auth-buttons">
+                <a href="/welcome.html" class="btn btn-outline">LogOut</a>
+            </div>
+            <div class="mobile-menu" id="mobileMenu">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <section class="main-content">
+        <div class="container">
+            <div class="page-header fade-in">
+                <h1>My Learning Journey</h1>
+                <p>Explore all the courses you've enrolled in and continue your educational adventure</p>
+            </div>
+
+            <!-- Loading State -->
+            <div class="state-container" id="loadingState">
+                <div class="state-icon">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </div>
+                <h2 class="state-title">Loading Your Courses</h2>
+                <p class="state-message">We're gathering all your learning materials. This will just take a moment.</p>
+            </div>
+
+            <!-- Error State -->
+            <div class="state-container d-none" id="errorState">
+                <div class="state-icon">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <h2 class="state-title">Something Went Wrong</h2>
+                <p class="state-message error-message">We encountered a problem loading your courses. Please try again.</p>
+                <button class="btn btn-primary" id="retryButton">Try Again</button>
+            </div>
+
+            <!-- Empty State -->
+            <div class="state-container d-none" id="emptyState">
+                <div class="state-icon">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <h2 class="state-title">No Courses Yet</h2>
+                <p class="state-message">You haven't enrolled in any courses yet. Explore our catalog to start your learning journey.</p>
+                <a href="/pages/student/courses.html" class="btn btn-primary">Browse Courses</a>
+            </div>
+
+            <!-- Courses List -->
+            <div class="courses-grid d-none" id="coursesContainer">
+                <!-- Courses will be dynamically inserted here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>EduWings</h3>
+                <p>Transforming education across Sri Lanka with innovative technology, world-class instructors, and personalized learning experiences.</p>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#courses">All Courses</a></li>
+                    <li><a href="#instructors">Our Instructors</a></li>
+                    <li><a href="#about">About Us</a></li>
+                    <li><a href="#contact">Contact Support</a></li>
+                    <li><a href="#careers">Join Our Team</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3>Popular Subjects</h3>
+                <ul>
+                    <li><a href="#physics">Advanced Physics</a></li>
+                    <li><a href="#chemistry">Organic Chemistry</a></li>
+                    <li><a href="#biology">Molecular Biology</a></li>
+                    <li><a href="#mathematics">Pure Mathematics</a></li>
+                    <li><a href="#computer">Computer Science</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3>Student Support</h3>
+                <ul>
+                    <li><a href="#help">Help Center</a></li>
+                    <li><a href="#faq">FAQ</a></li>
+                    <li><a href="#privacy">Privacy Policy</a></li>
+                    <li><a href="#terms">Terms of Service</a></li>
+                    <li><a href="#accessibility">Accessibility</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2024 EduWings. All rights reserved. | Designed with passion for Sri Lankan students | Version 2.0</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    // Constants
+    const API_BASE_URL = 'http://localhost:8080/api';
+
+    // DOM Elements
+    const loadingState = document.getElementById('loadingState');
+    const errorState = document.getElementById('errorState');
+    const emptyState = document.getElementById('emptyState');
+    const coursesContainer = document.getElementById('coursesContainer');
+    const retryButton = document.getElementById('retryButton');
+    const navbar = document.getElementById('navbar');
+
+    // Initialize the application
+    document.addEventListener('DOMContentLoaded', () => {
+        setupEventListeners();
+        loadCourses();
+        setupNavbarScroll();
+    });
+
+    // Setup event listeners
+    function setupEventListeners() {
+        if (retryButton) {
+            retryButton.addEventListener('click', loadCourses);
+        }
+    }
+
+    // Navbar scroll effect
+    function setupNavbarScroll() {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+    }
+
+    // Utility function to determine file type
+    function getFileType(url) {
+        if (!url || typeof url !== 'string') return 'unknown';
+        
+        const lowerUrl = url.toLowerCase();
+        
+        // Check for video extensions or Cloudinary video indicators
+        if (lowerUrl.includes('.mp4') || lowerUrl.includes('.webm') || lowerUrl.includes('.mov') || 
+            lowerUrl.includes('.avi') || lowerUrl.includes('.wmv') || lowerUrl.includes('video/') ||
+            lowerUrl.includes('f_auto') || lowerUrl.includes('resource_type/video')) {
+            return 'video';
+        }
+        
+        // Check for image extensions
+        if (lowerUrl.includes('.jpg') || lowerUrl.includes('.jpeg') || lowerUrl.includes('.png') || 
+            lowerUrl.includes('.gif') || lowerUrl.includes('.webp') || lowerUrl.includes('image/')) {
+            return 'image';
+        }
+        
+        // Check for document extensions
+        if (lowerUrl.includes('.pdf') || lowerUrl.includes('.doc') || lowerUrl.includes('.docx') || 
+            lowerUrl.includes('.xls') || lowerUrl.includes('.xlsx') || lowerUrl.includes('.ppt') || 
+            lowerUrl.includes('.pptx')) {
+            return 'document';
+        }
+        
+        // For Cloudinary URLs without extensions, try to determine from URL structure
+        if (lowerUrl.includes('cloudinary.com')) {
+            // Check URL path for resource type
+            if (lowerUrl.includes('/video/')) return 'video';
+            if (lowerUrl.includes('/image/')) return 'image';
+            if (lowerUrl.includes('/raw/')) return 'document';
+        }
+        
+        return 'file'; // Default to generic file
+    }
+
+    // Create media element based on file type
+    function createMediaElement(fileUrl, index) {
+        const fileType = getFileType(fileUrl);
+        console.log(`File ${index}: ${fileUrl}, detected type: ${fileType}`);
+        
+        switch (fileType) {
+            case 'video':
+                return `
+                    <div class="video-item">
+                        <video class="module-video" controls preload="metadata" 
+                               onloadstart="console.log('Video loading started: ${fileUrl}')" 
+                               onerror="console.error('Video failed to load: ${fileUrl}')">
+                            <source src="${fileUrl}" type="video/mp4">
+                            <source src="${fileUrl}" type="video/webm">
+                            <p>Your browser does not support the video tag. <a href="${fileUrl}" target="_blank">Download video</a></p>
+                        </video>
+                        <div class="video-actions">
+                            <a href="${fileUrl}" target="_blank"><i class="fas fa-external-link-alt"></i> Open</a>
+                            <a href="${fileUrl}" download><i class="fas fa-download"></i> Download</a>
+                        </div>
+                    </div>
+                `;
+            
+            case 'image':
+                return `
+                    <div class="file-item">
+                        <div class="file-info">
+                            <div class="file-icon">
+                                <i class="fas fa-image"></i>
+                            </div>
+                            <div>
+                                <div class="file-name">Image File</div>
+                                <div class="file-type">Image</div>
+                            </div>
+                        </div>
+                        <div class="video-actions">
+                            <a href="${fileUrl}" target="_blank"><i class="fas fa-eye"></i> View</a>
+                            <a href="${fileUrl}" download><i class="fas fa-download"></i> Download</a>
+                        </div>
+                    </div>
+                `;
+            
+            case 'document':
+                return `
+                    <div class="file-item">
+                        <div class="file-info">
+                            <div class="file-icon">
+                                <i class="fas fa-file-pdf"></i>
+                            </div>
+                            <div>
+                                <div class="file-name">Document</div>
+                                <div class="file-type">PDF/Document</div>
+                            </div>
+                        </div>
+                        <div class="video-actions">
+                            <a href="${fileUrl}" target="_blank"><i class="fas fa-external-link-alt"></i> Open</a>
+                            <a href="${fileUrl}" download><i class="fas fa-download"></i> Download</a>
+                        </div>
+                    </div>
+                `;
+            
+            default:
+                return `
+                    <div class="file-item">
+                        <div class="file-info">
+                            <div class="file-icon">
+                                <i class="fas fa-file"></i>
+                            </div>
+                            <div>
+                                <div class="file-name">File</div>
+                                <div class="file-type">Unknown Type</div>
+                            </div>
+                        </div>
+                        <div class="video-actions">
+                            <a href="${fileUrl}" target="_blank"><i class="fas fa-external-link-alt"></i> Open</a>
+                            <a href="${fileUrl}" download><i class="fas fa-download"></i> Download</a>
+                        </div>
+                    </div>
+                `;
+        }
+    }
+
+    // Load courses function
+    async function loadCourses() {
+        try {
+            showLoadingState();
+            
+            const userId = localStorage.getItem("studentId");
+            if (!userId) {
+                window.location.href = "login.html";
+                return;
+            }
+
+            // Debug: Log userId
+            console.log('Loading courses for userId:', userId);
+
+            // Fetch payments for the user
+            const paymentsRes = await fetch(`${API_BASE_URL}/payments/user/${userId}`);
+            if (!paymentsRes.ok) throw new Error(`Failed to fetch payments: ${paymentsRes.status}`);
+            
+            let payments = await paymentsRes.json();
+            if (!Array.isArray(payments)) payments = [];
+
+            console.log('Payments:', payments);
+
+            // Collect monthIds from payments
+            const monthIds = payments.flatMap(p => Array.isArray(p.monthIds) ? p.monthIds : []);
+            console.log('MonthIds:', monthIds);
+            
+            if (monthIds.length === 0) {
+                showEmptyState();
+                return;
+            }
+
+            // Fetch modules by monthIds
+            const modulesRes = await fetch(`${API_BASE_URL}/modules/by-months`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(monthIds)
+            });
+            
+            if (!modulesRes.ok) throw new Error(`Failed to fetch modules: ${modulesRes.status}`);
+            const modules = await modulesRes.json();
+
+            console.log('Modules:', modules);
+
+            // Show courses container
+            showCoursesContainer();
+            
+            // Create a Set to track unique batches
+            const processedBatches = new Set();
+
+            for (const mod of modules) {
+                if (processedBatches.has(mod.monthId)) continue;
+                processedBatches.add(mod.monthId);
+
+                console.log('Processing module:', mod);
+
+                try {
+                    // Fetch batch info with instructor + course
+                    const batchRes = await fetch(`${API_BASE_URL}/batches/by-month-with-details/${mod.monthId}`);
+                    if (!batchRes.ok) continue;
+                    
+                    const batch = await batchRes.json();
+                    const course = batch.course || {};
+                    const instructor = batch.instructor || {};
+
+                    // Fetch month info
+                    let monthName = "N/A";
+                    try {
+                        const monthRes = await fetch(`${API_BASE_URL}/months/${mod.monthId}`);
+                        if (monthRes.ok) {
+                            const month = await monthRes.json();
+                            monthName = month.monthName || "N/A";
+                        }
+                    } catch (err) {
+                        console.warn(`Failed to fetch month info for monthId ${mod.monthId}`, err);
+                    }
+
+                    // Create course card
+                    const courseCard = createCourseCard(mod, batch, course, instructor, monthName);
+                    coursesContainer.appendChild(courseCard);
+
+                } catch (err) {
+                    console.error(`Error processing module for month ${mod.monthId}:`, err);
+                }
+            }
+
+            if (coursesContainer.children.length === 0) {
+                showEmptyState();
+            }
+
+        } catch (err) {
+            console.error("Error loading courses:", err);
+            showErrorState(err.message || "We encountered a problem loading your courses.");
+        }
+    }
+
+    // Create course card HTML
+    function createCourseCard(module, batch, course, instructor, monthName) {
+        const col = document.createElement('div');
+        col.classList.add('course-card', 'fade-in');
+        
+        // Debug: Log module video URLs
+        console.log('Module videoUrls:', module.videoUrls);
+        
+        // Generate media content for videos/files
+        let mediaContent = '';
+        if (Array.isArray(module.videoUrls) && module.videoUrls.length > 0) {
+            mediaContent = module.videoUrls.map((url, index) => {
+                console.log(`Creating media element for URL ${index}:`, url);
+                return createMediaElement(url, index);
+            }).join('');
+        } else {
+            console.log('No video URLs found for module:', module.title);
+            mediaContent = '<p class="text-center">No files available for this module</p>';
+        }
+        
+        col.innerHTML = `
+            <div class="course-header">
+                <h3 class="course-title">${course.courseName || course.name || "Unnamed Course"}</h3>
+                <div class="info-item"><i class="fas fa-calendar-alt info-icon"></i><span>Month: ${monthName}</span></div>
+                <div class="info-item"><i class="fas fa-users info-icon"></i><span>Batch: ${batch.batchName || batch.batchId}</span></div>
+                <div class="info-item"><i class="fas fa-book info-icon"></i><span>Module: ${module.title || "Untitled Module"}</span></div>
+                <div class="info-item"><i class="fas fa-money-bill-wave info-icon"></i><span>Monthly Fee: ${batch.monthlyFee || 'N/A'}</span></div>
+            </div>
+            
+            <div class="course-info">
+                <div class="instructor-section">
+                    <h6><i class="fas fa-chalkboard-teacher me-1"></i> Instructor</h6>
+                    ${instructor.name ? `
+                    <div class="d-flex align-items-center">
+                        ${instructor.photo ? 
+                            `<img src="${instructor.photo}" alt="${instructor.name}" class="rounded-circle me-2" style="width:40px;height:40px;object-fit:cover;">` : 
+                            `<div class="rounded-circle me-2 d-flex align-items-center justify-content-center" style="width:40px;height:40px;background:var(--accent-gradient);"><i class="fas fa-user"></i></div>`
+                        }
+                        <div>
+                            <div class="fw-bold">${instructor.name}</div>
+                            <small class="text-light">${instructor.email || ""}</small>
+                        </div>
+                    </div>
+                    ${instructor.phone ? `<div class="mt-2"><small><i class="fas fa-phone me-1"></i> ${instructor.phone}</small></div>` : ''}
+                    ` : `<div class="text-center py-2"><i class="fas fa-user-slash fs-4 opacity-50"></i><p class="mt-2 mb-0">Instructor not assigned yet</p></div>`}
+                </div>
+            </div>
+            
+            <div class="videos-section">
+                <div class="videos-header"><i class="fas fa-play-circle"></i><h4>Learning Materials</h4></div>
+                ${mediaContent}
+            </div>
+        `;
+        
+        return col;
+    }
+
+    // State management
+    function showLoadingState() {
+        loadingState.classList.remove('d-none');
+        errorState.classList.add('d-none');
+        emptyState.classList.add('d-none');
+        coursesContainer.classList.add('d-none');
+    }
+
+    function showErrorState(message) {
+        loadingState.classList.add('d-none');
+        errorState.classList.remove('d-none');
+        emptyState.classList.add('d-none');
+        coursesContainer.classList.add('d-none');
+        if (message) document.querySelector('.error-message').textContent = message;
+    }
+
+    function showEmptyState() {
+        loadingState.classList.add('d-none');
+        errorState.classList.add('d-none');
+        emptyState.classList.remove('d-none');
+        coursesContainer.classList.add('d-none');
+    }
+
+    function showCoursesContainer() {
+        loadingState.classList.add('d-none');
+        errorState.classList.add('d-none');
+        emptyState.classList.add('d-none');
+        coursesContainer.classList.remove('d-none');
+    }
+</script>
+
+</body>
+</html>
